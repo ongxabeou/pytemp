@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+""" Author: Ly Tuan Anh
+    github nick: ongxabeou
+    mail: lytuananh2003@gmail.com
+    Date created: 2017/04/28
+"""
 import configparser
 import datetime
 import logging.config
-
-from bottle import unicode
 
 from common import DMAI_CONFIG_FILE_PATH, DMAI_LOG_CONFIG_FILE_PATH, DMAI_LOG_FILE_PATH
 from libs.singleton import Singleton

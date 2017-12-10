@@ -1,3 +1,10 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+""" Author: Ly Tuan Anh
+    github nick: ongxabeou
+    mail: lytuananh2003@gmail.com
+    Date created: 2017/04/28
+"""
 import datetime
 from functools import wraps
 

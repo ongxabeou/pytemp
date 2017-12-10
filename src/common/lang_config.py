@@ -1,5 +1,8 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+""" Author: Ly Tuan Anh
+    github nick: ongxabeou
+    mail: lytuananh2003@gmail.com
+    Date created: 2017/04/28
+"""
 import json
 
 from common import DMAI_LANG_VI_FILE_PATH, DMAI_LANG_EN_FILE_PATH, open_file
