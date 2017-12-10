@@ -44,9 +44,9 @@ http://localhost:5000/api/v1.0/bot/bot_single_seller_shop_pizza_express \
 -H 'authorization: Basic bliauwbralwiubnawk24114eobn'
 ```
 
-![request body](/resources/images/1.png)
+![request body](https://github.com/ongxabeou/pytemp/raw/master/resources/images/1.png)
 
-![request body](/resources/images/2.png)
+![request header](https://github.com/ongxabeou/pytemp/raw/master/resources/images/2.PNG)
 
 ### Versioning
 
