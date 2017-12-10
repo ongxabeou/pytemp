@@ -1,0 +1,45 @@
+{
+  "nlp_apps": [
+    {
+      "key": "bot_single_seller",
+      "desc": "các intent cho bán hàng đơn giản",
+      "cache_expired_time": 3600
+    }
+  ],
+  "bots": [
+    {
+      "id": "bot_single_seller_shop_pizza_express",
+      "nlp_key": "bot_single_seller",
+      "meta_class": {
+        "module_name": "controllers.bot_single_seller",
+        "class_name": "BotSingleSeller"
+      },
+      "name": "Ngọc Trinh",
+      "desc": "cửa hàng Pizza Express",
+      "token": "bliauwbralwiubnawk24114eobn",
+      "consumer": {
+        "id": "shop_pizza_express",
+        "name": "cửa hàng Pizza Express",
+        "product": "bánh Pizza",
+        "phone": "0988830588",
+        "address": "19 Dịch Vọng",
+        "unit": "Chiếc"
+      }
+    }
+  ],
+  "admin_permitted": {
+    "methods": [
+      "bot_register",
+      "bot_delete",
+      "bot_update",
+      "bot_put",
+      "bot_get"
+    ]
+  },
+  "user_permitted": {
+    "methods": [
+      "bot_put",
+      "bot_get"
+    ]
+  }
+}

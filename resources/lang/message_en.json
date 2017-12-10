@@ -1,0 +1,42 @@
+{
+  "unauthorized": {
+    "message": "JWT is invalid or is expired. Please login again.",
+    "code": 401
+  },
+  "not_allowed": {
+    "message": "you can't execute, please login before execution this api.",
+    "code": 405
+  },
+  "not_found": {
+    "message": "Item is not found.",
+    "code": 404
+  },
+  "internal_server_error": {
+    "message": "There is an internal server error.",
+    "code": 500
+  },
+  "validate_error": {
+    "message": "Validation failed.",
+    "code": 412
+  },
+  "lang_error": {
+    "message": "system only support for language (vi,en).",
+    "code": 100
+  },
+  "must_not_empty": {
+    "message": "%s must not empty.",
+    "code": 101
+  },
+  "not_exist": {
+    "message": "%s [%s] not exist in system.",
+    "code": 102
+  },
+  "already_exist": {
+    "message": "%s [%s] already exist in system.",
+    "code": 103
+  },
+  "message_success": {
+    "message": "request successful.",
+    "code": 200
+  }
+}

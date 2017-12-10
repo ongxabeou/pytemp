@@ -1,0 +1,42 @@
+{
+  "unauthorized": {
+    "message": "JWT không hợp hoặc đã hết hạn, vui lòng đăng nhập lại.",
+    "code": 401
+  },
+  "not_allowed": {
+    "message": "bạn không thể thực hiện, vui lòng đăng nhập lại trước khi thực thi api.",
+    "code": 405
+  },
+  "not_found": {
+    "message": "Không tìm thấy mục nào",
+    "code": 404
+  },
+  "internal_server_error": {
+    "message": "có lỗi phát sinh trong server.",
+    "code": 500
+  },
+  "validate_error": {
+    "message": "Xác thực không thành công.",
+    "code": 412
+  },
+  "lang_error": {
+    "message": "hệ thống chỉ hỗ trợ với ngôn ngữ (vi,en).",
+    "code": 100
+  },
+  "must_not_empty": {
+    "message": "%s phải không rỗng.",
+    "code": 101
+  },
+  "not_exist": {
+    "message": "%s [%s] không tồn tại trong hệ thống.",
+    "code": 102
+  },
+  "already_exist": {
+    "message": "%s [%s] đã tồn tại trong hệ thống.",
+    "code": 103
+  },
+  "message_success": {
+    "message": "request thành công.",
+    "code": 200
+  }
+}

@@ -1,0 +1,309 @@
+{
+  "name": "Finite State Machine for Sell Pizza",
+  "states": {
+    "getting": {
+      "is_start": true,
+      "is_finish": false,
+      "request_example": "chào cưng.",
+      "event": "getting",
+      "handler": "",
+      "response": {
+        "type": "format",
+        "text": "Xin chào @pronoun @customer_name, @consumer_name có thể giúp gì cho @pronoun ạ?"
+      },
+      "next": [
+        {
+          "request_example": "note: im lặng 30 giây",
+          "event": "silence",
+          "go": "welcome"
+        },
+        {
+          "request_example": "vậy cho anh 2 cái",
+          "event": "reply_purchase_info",
+          "go": "fill_order"
+        },
+        {
+          "request_example": "Beefy Pizza là\n thế nào vậy em",
+          "event": "ask_about_product",
+          "go": "intro_product"
+        },
+        {
+          "request_example": "note: có lỗi gì đó trong hệ thống xẩy ra",
+          "event": "raise_error",
+          "go": "error"
+        }
+      ]
+    },
+    "unknown": {
+      "is_start": true,
+      "is_finish": false,
+      "request_example": "đi ăn cơm với anh nhé cưng.",
+      "event": "not_understand",
+      "handler": "",
+      "response": {
+        "type": "format",
+        "text": "xin lỗi em không hiểu ý @pronoun ạ. @pronoun cần mua hàng gì thì xin @pronoun nhập mã hàng hoặc tên hàng ạ"
+      },
+      "next": [
+        {
+          "request_example": "note: im lặng 30 giây",
+          "event": "silence",
+          "go": "welcome"
+        },
+        {
+          "request_example": "Beefy Pizza là\n thế nào vậy em",
+          "event": "ask_about_product",
+          "go": "intro_product"
+        },
+        {
+          "request_example": "note: có lỗi gì đó trong hệ thống xẩy ra",
+          "event": "raise_error",
+          "go": "error"
+        }
+      ]
+    },
+    "intro_product": {
+      "is_start": true,
+      "is_finish": false,
+      "request_example": "Beefy Pizza là\n thế nào vậy em",
+      "event": "ask_about_product",
+      "handler": "get_product_info",
+      "response": {
+        "type": "text",
+        "text": "Beefy Pizza là \nThịt bò xay, ngô, sốt BBQ, \npho mai mozzarella\n có các kích cỡ S,M,L"
+      },
+      "next": [
+        {
+          "request_example": "note: im lặng 30 giây",
+          "event": "silence",
+          "go": "welcome"
+        },
+        {
+          "request_example": "vậy cho anh 2 cái",
+          "event": "reply_purchase_info",
+          "go": "fill_order"
+        },
+        {
+          "request_example": "note: có lỗi gì đó trong hệ thống xẩy ra",
+          "event": "raise_error",
+          "go": "error"
+        },
+        {
+          "request_example": "Michigan Pizza thì sao em",
+          "event": "ask_about_product",
+          "go": "intro_product"
+        },
+        {
+          "request_example": "có loại nào dùng cá hồi không em",
+          "event": "ask_about_product_property",
+          "go": "search_product"
+        }
+      ]
+    },
+    "search_product": {
+      "is_start": true,
+      "is_finish": false,
+      "request_example": "có pizza nào dùng cá mực không em?",
+      "event": "ask_about_product_property",
+      "handler": "search_product_info",
+      "response": {
+        "type": "format",
+        "text": "có @product_name_list là dùng @product_property @pronoun ạ"
+      },
+      "next": [
+        {
+          "request_example": "note: im lặng 30 giây",
+          "event": "silence",
+          "go": "welcome"
+        },
+        {
+          "request_example": "Michigan Pizza thì sao",
+          "event": "ask_about_product",
+          "go": "intro_product"
+        },
+        {
+          "request_example": "có loại nào dùng cá hồi không em",
+          "event": "ask_about_product_property",
+          "go": "search_product"
+        },
+        {
+          "request_example": "note: có lỗi gì đó trong hệ thống xẩy ra",
+          "event": "raise_error",
+          "go": "error"
+        }
+      ]
+    },
+    "fill_order": {
+      "is_start": true,
+      "is_finish": false,
+      "request_example": "cho 2 cái",
+      "handler": "reply_purchase_info",
+      "event": "reply_purchase_info",
+      "response": {
+        "type": "command",
+        "text": "order_filling",
+        "complete": "full_order"
+      },
+      "next": [
+        {
+          "request_example": "cho anh cái cỡ M",
+          "event": "reply_purchase_info",
+          "go": "fill_order"
+        },
+        {
+          "request_example": "cho anh cái vừa vừa ấy",
+          "event": "unknown_purchase_info",
+          "go": "unknown_entity"
+        },
+        {
+          "request_example": "5h chiều nhé mang đến nhé",
+          "event": "full_purchase_info",
+          "go": "full_order"
+        },
+        {
+          "request_example": "note: có lỗi gì đó trong hệ thống xẩy ra",
+          "event": "raise_error",
+          "go": "error"
+        }
+      ]
+    },
+    "full_order": {
+      "is_start": false,
+      "is_finish": false,
+      "request_example": "5h chiều nhé mang đến nhé",
+      "event": "full_purchase_info",
+      "handler": "record_order",
+      "response": {
+        "type": "format",
+        "text": "cám ơn @pronoun đã mua hàng, em sẽ chuyển hàng đến đúng hẹn ạ"
+      },
+      "next": [
+        {
+          "request_example": "ok",
+          "event": "bye",
+          "go": "goodbye"
+        },
+        {
+          "request_example": "note: im lặng 30 giây",
+          "event": "silence",
+          "go": "thank"
+        },
+        {
+          "request_example": "note: có lỗi gì đó trong hệ thống xẩy ra",
+          "event": "raise_error",
+          "go": "error"
+        }
+      ]
+    },
+    "welcome": {
+      "is_start": false,
+      "is_finish": false,
+      "request_example": "note: im lặng 30 giây",
+      "event": "no_thing",
+      "handler": "",
+      "response": {
+        "type": "format",
+        "text": "@consumer_name áp dụng nhiều khuyến mãi hấp dẫn như: @policy"
+      },
+      "next": [
+        {
+          "request_example": "ok",
+          "event": "bye",
+          "go": "goodbye"
+        },
+        {
+          "request_example": "cho anh cái cỡ M",
+          "event": "reply_purchase_info",
+          "go": "fill_order"
+        },
+        {
+          "request_example": "Michigan Pizza thì sao em",
+          "event": "ask_about_product",
+          "go": "intro_product"
+        },
+        {
+          "request_example": "có loại nào dùng cá hồi không em",
+          "event": "ask_about_product_property",
+          "go": "search_product"
+        },
+        {
+          "request_example": "hôm nay trời mưa",
+          "event": "not_understand",
+          "go": "unknown"
+        }
+      ]
+    },
+    "error": {
+      "is_start": false,
+      "is_finish": false,
+      "request_example": "trong quá trình thực hiện handler hệ thống phát sinh lỗi",
+      "event": "raise_error",
+      "response": {
+        "type": "text",
+        "text": "Chúng em đã phát hiện một lỗi. Vui lòng thử lại sau."
+      },
+      "handler": "",
+      "next": [
+        {
+          "request_example": "note: im lặng 30 giây",
+          "event": "silence",
+          "go": "welcome"
+        }
+      ]
+    },
+    "thank": {
+      "is_start": false,
+      "is_finish": true,
+      "request_example": "ok, cám ơn",
+      "event": "thank",
+      "handler": "",
+      "response": {
+        "type": "format",
+        "text": "vâng cám ơn @pronoun đã ủng hộ chúng em ạ. Rất mong sẽ lại được phục vụ @pronoun trong thời gian tơi ạ"
+      },
+      "next": []
+    },
+    "goodbye": {
+      "is_start": false,
+      "is_finish": true,
+      "request_example": "bye",
+      "handler": "create_feed_back",
+      "response": {
+        "type": "format",
+        "text": "vâng chào @pronoun ạ. Cám ơn @pronoun đã ủng hộ chúng em ạ. Rất mong sẽ lại được phục vụ @pronoun trong thời gian tới ạ"
+      },
+      "next": [
+        {
+          "request_example": "cám ơn",
+          "event": "thank",
+          "go": "thank"
+        }
+      ]
+    }
+  },
+  "order_filling": {
+    "kind": "@product_name nhà hàng em có cá hổi, bò, thập cẩm, anh chọn loại nào ạ?",
+    "quantity": "@pronoun cần mấy @unit @product_name ạ?",
+    "size": "@product_name có các kích cỡ S,M,L. @pronoun cần kích cỡ nào ạ?",
+    "phone": "xin @pronoun cho biết số điện thoại để liện hệ ạ?",
+    "address": "xin @pronoun cho biết đại chỉ ạ?",
+    "receiver": "xin @pronoun cho biết tên người nhận hàng ạ?",
+    "receiver_phone": "xin @pronoun cho biết số điện thoại của người nhận hàng ạ?",
+    "ship_time": "em có thể giao hàng được cho @pronoun lúc nào ạ?"
+  },
+  "metadata": {
+    "@pronoun": "get_pronoun",
+    "@customer_name": "get_customer_name",
+    "@consumer_name": "get_consumer_name",
+    "@product_name": "get_product_name",
+    "@product_name_list": "get_product_name_list",
+    "@product_property": "get_product_property",
+    "@address": "get_address",
+    "@receiver": "get_receiver",
+    "@receiver_phone": "get_receiver_phone",
+    "@ship_time": "get_ship_time",
+    "@quantity": "get_quantity",
+    "@unit": "get_unit",
+    "@policy": "get_policy"
+  }
+}
