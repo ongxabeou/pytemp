@@ -23,27 +23,30 @@ xem cách cài đặt trong file bot.py
 Method PUT BOT
 
 ```
-    curl -X PUT \
-    http://localhost:5000/api/v1.0/bot/bot_single_seller_shop_pizza_express \
-    -H 'authorization: Basic bliauwbralwiubnawk24114eobn' \
-    -H 'content-type: application/json' \
-    -d '{
-        "id": 1245,
-        "name": "Tuấn Anh",
-        "age": 5,
-        "gender": 4,
-        "message": "Chào"
-    }'
+curl -X PUT \
+http://localhost:5000/api/v1.0/bot/bot_single_seller_shop_pizza_express \
+-H 'authorization: Basic bliauwbralwiubnawk24114eobn' \
+-H 'content-type: application/json' \
+-d '{
+    "id": 1245,
+    "name": "Tuấn Anh",
+    "age": 5,
+    "gender": 4,
+    "message": "Chào"
+}'
 ```
 
 Method GET BOT
 
 ```
-    curl -X GET \
-    http://localhost:5000/api/v1.0/bot/bot_single_seller_shop_pizza_express \
-    -H 'authorization: Basic bliauwbralwiubnawk24114eobn'
-
+curl -X GET \
+http://localhost:5000/api/v1.0/bot/bot_single_seller_shop_pizza_express \
+-H 'authorization: Basic bliauwbralwiubnawk24114eobn'
 ```
+
+![request body](/resources/images/1.png)
+
+![request body](/resources/images/2.png)
 
 ### Versioning
 
