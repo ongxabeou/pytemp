@@ -105,7 +105,7 @@ def try_catch_error(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         try:
-            return jsonify(f(*args, **kwargs)), 404
+            return jsonify(f(*args, **kwargs)), 200
         except ParamInvalidError as pie:
             return param_invalid_error(pie)
         except InputNotFoundError as inf:
