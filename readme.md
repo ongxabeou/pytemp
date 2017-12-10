@@ -20,7 +20,7 @@ xem cách cài đặt trong file bot.py
 
 ## Apis
 
-Method PUT
+Method PUT BOT
 
 ```
     curl -X PUT \
@@ -36,7 +36,7 @@ Method PUT
     }'
 ```
 
-Method GET
+Method GET BOT
 
 ```
     curl -X GET \
@@ -47,5 +47,4 @@ Method GET
 
 ### Versioning
 
-The default API version is `20171230`.
-You can target a specific version by setting the env variable `WIT_API_VERSION`.
+The default API version is `20171210`.
