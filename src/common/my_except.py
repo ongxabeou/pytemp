@@ -20,16 +20,15 @@ class BaseMoError(Exception):
 
     def __init__(self, *args):  # real signature unknown
         # *args is used to get a list of the parameters passed in
-        array = [a for a in args]
-        for i in range(len(array)):
-            if isinstance(array[i], str):
-                array[i] = str(array[i]).encode('utf-8')
-        self.args = array
         param = None
+        array = [a for a in args]
         try:
             param = request.args.get('lang')
+            if len(array) > 0:
+                array[0].encode('utf-8')
+            self.params = array
         except:
-            pass
+            self.params = array[1:]
 
         if (param is None) or (param and param not in (LANG_VI, LANG_EN)):
             param = LANG_VI
@@ -51,10 +50,11 @@ class BaseMoError(Exception):
     def _get_message(self):
         log_mod = self.sys_conf.get_section_map(SECTION.LOGGING_MODE)
 
-        len_arg = len(self.args)
+        len_arg = len(self.params)
         message_name = self.message_name_default
-        if len_arg > 1 and isinstance(self.args[1], str):
-            message_name = self.args[1]
+        if len_arg > 0:
+            message_name = self.params[0]
+
         log_message = None
         if message_name not in self.lang:
             log_message = "arg[0] là [%s] không được định nghĩa trong file Lang" % message_name
@@ -63,9 +63,9 @@ class BaseMoError(Exception):
         code = self.lang[message_name][LANG_STRUCTURE.CODE]
         message = self.lang[message_name][LANG_STRUCTURE.MESSAGE]
 
-        not_custom_except = message_name == LANG.INTERNAL_SERVER_ERROR
-        mod1 = int(log_mod[LOGGING_MODE.LOG_FOR_ALL_CUSTOMIZE_EXCEPTION]) == 1 and not_custom_except
-        mod2 = int(log_mod[LOGGING_MODE.WRITE_TRACEBACK_FOR_ALL_CUSTOMIZE_EXCEPTION]) == 1 and not_custom_except
+        is_custom_except = message_name != LANG.INTERNAL_SERVER_ERROR and message_name != LANG.MESSAGE_SUCCESS
+        mod1 = int(log_mod[LOGGING_MODE.LOG_FOR_ALL_CUSTOMIZE_EXCEPTION]) == 1 and is_custom_except
+        mod2 = int(log_mod[LOGGING_MODE.WRITE_TRACEBACK_FOR_ALL_CUSTOMIZE_EXCEPTION]) == 1 and is_custom_except
 
         mod3 = int(log_mod[LOGGING_MODE.WRITE_TRACEBACK_FOR_GLOBAL_EXCEPTION]) == 1
         mod3 = mod3 and message_name == LANG.INTERNAL_SERVER_ERROR
@@ -81,8 +81,8 @@ class BaseMoError(Exception):
                 self.sys_conf.logger.debug(log_message)
 
         errors = None
-        if len_arg > 2 and isinstance(self.args[2], dict):
-            errors = self.args[2]
+        if len_arg > 1:
+            errors = self.params[1]
 
         try:
             if mod1 or mod4 or mod5:
@@ -101,7 +101,7 @@ class BaseMoError(Exception):
                                            (str(datetime.datetime.now()), self.get_class_name()))
 
         if message and str(message).find('%s') >= 0:
-            params = list(self.args[2:])
+            params = list(self.params[1:])
             message = message % tuple(params)
             return BaseMoError.build_message_error(code, message)
         else:

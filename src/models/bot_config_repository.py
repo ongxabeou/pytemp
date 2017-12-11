@@ -39,12 +39,12 @@ class BotConfigRepository:
 
     def get(self, bot_id):
         if bot_id not in self.bot_dic:
-            raise InputNotFoundError(LANG.NOT_EXIST, bot_id.__name__, bot_id)
+            raise InputNotFoundError(LANG.NOT_EXIST, 'bot_id', 'củ chối rồi')
         return self.bot_dic[bot_id]
 
     def delete(self, bot_id):
         if bot_id not in self.bot_dic:
-            raise InputNotFoundError(LANG.NOT_EXIST, bot_id.__name__, bot_id)
+            raise InputNotFoundError(LANG.NOT_EXIST, 'bot_id', bot_id)
         self._bots[BOTS_STRUCTURE.BOTS].remove(self.bot_dic[bot_id])
         self.bot_dic[bot_id] = None
         str_json = json.dumps(self._bots, ensure_ascii=False)
@@ -52,7 +52,7 @@ class BotConfigRepository:
 
     def set(self, bot_id, bot_config):
         if bot_id not in self.bot_dic:
-            raise InputNotFoundError(LANG.NOT_EXIST, bot_id.__name__, bot_id)
+            raise InputNotFoundError(LANG.NOT_EXIST, 'bot_id', bot_id)
 
         index = self._bots[BOTS_STRUCTURE.BOTS].index(self.bot_dic[bot_id])
         self.bot_dic[bot_id] = bot_config
@@ -62,7 +62,7 @@ class BotConfigRepository:
 
     def register(self, bot_id, bot_config):
         if bot_id in self.bot_dic:
-            raise LogicSystemError(LANG.ALREADY_EXIST, bot_id.__name__, bot_id)
+            raise LogicSystemError(LANG.ALREADY_EXIST, 'bot_id', bot_id)
 
         self.bot_dic[bot_id] = bot_config
         self._bots[BOTS_STRUCTURE.BOTS].append(bot_config)
@@ -72,8 +72,8 @@ class BotConfigRepository:
 
     def get_nlp_app(self, nlp_key):
         if nlp_key is None:
-            raise ParamInvalidError(LANG.MUST_NOT_EMPTY, nlp_key.__name__)
+            raise ParamInvalidError(LANG.MUST_NOT_EMPTY, 'nlp_key')
         try:
             return self.nlp_dic[nlp_key]
         except KeyError:
-            raise InputNotFoundError(LANG.NOT_EXIST, nlp_key.__name__, nlp_key)
+            raise InputNotFoundError(LANG.NOT_EXIST, 'nlp_key', nlp_key)

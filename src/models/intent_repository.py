@@ -42,7 +42,7 @@ class IntentRepository:
             # và lưu intent mới vào caching
             return 'getting'
         except KeyError:
-            raise InputNotFoundError(LANG.NOT_EXIST, bot_id.__name__, bot_id)
+            raise InputNotFoundError(LANG.NOT_EXIST, 'bot_id', bot_id)
 
     class Intent:
         """ lớp tạo caching để lưu trữ các intent """
