@@ -8,7 +8,7 @@ from src.common.system_config import SystemConfig
 from src.libs.http_jwt_auth import HttpJwtAuth
 from src.models.bot_config_repository import BotConfigRepository
 from src.models import PERMITTED_STRUCTURE
-from src.common import ADMIN
+from src.common import ADMIN, SECTION, LOGGING_MODE
 from functools import wraps
 
 
@@ -36,6 +36,9 @@ auth = HttpJwtAuth()
 def build_response_message(data=None):
     exc = BaseMoError(LANG.MESSAGE_SUCCESS)
     message = exc.get_message()
+    log_mod = sys_conf.get_section_map(SECTION.LOGGING_MODE)
+    if int(log_mod[LOGGING_MODE.LOG_FOR_REQUEST_SUCCESS]) == 1:
+        sys_conf.logger.debug('response: %s' % (data or message))
     if data is None:
         return message
     return data

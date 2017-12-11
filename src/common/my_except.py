@@ -63,7 +63,7 @@ class BaseMoError(Exception):
         code = self.lang[message_name][LANG_STRUCTURE.CODE]
         message = self.lang[message_name][LANG_STRUCTURE.MESSAGE]
 
-        not_custom_except = message_name not in (LANG.MESSAGE_SUCCESS, LANG.INTERNAL_SERVER_ERROR)
+        not_custom_except = message_name == LANG.INTERNAL_SERVER_ERROR
         mod1 = int(log_mod[LOGGING_MODE.LOG_FOR_ALL_CUSTOMIZE_EXCEPTION]) == 1 and not_custom_except
         mod2 = int(log_mod[LOGGING_MODE.WRITE_TRACEBACK_FOR_ALL_CUSTOMIZE_EXCEPTION]) == 1 and not_custom_except
 
@@ -85,21 +85,14 @@ class BaseMoError(Exception):
             errors = self.args[2]
 
         try:
-            if mod1 or mod4:
-                self.sys_conf.logger.debug('HTTP/1.1 {method} {url}\n{headers}\n\n{body}'.format(
-                    method=request.method,
-                    url=request.url,
-                    headers='\n'.join('{}: {}'.format(k, v) for k, v in request.headers.items()),
-                    body=request.data,
-                ))
-            elif mod5:
-                self.sys_conf.logger.debug('HTTP/1.1 {method} {url}\n{headers}\n\n{body} {response}'.format(
-                    method=request.method,
-                    url=request.url,
-                    headers='\n'.join('{}: {}'.format(k, v) for k, v in request.headers.items()),
-                    body=request.data,
-                    response=errors
-                ))
+            if mod1 or mod4 or mod5:
+                self.sys_conf.logger.debug(
+                    'HTTP/1.1 {method} {url}\n{headers}\n\nbody: {body}'.format(
+                        method=request.method,
+                        url=request.url,
+                        headers='\n'.join('{}: {}'.format(k, v) for k, v in request.headers.items()),
+                        body=request.data
+                    ))
         except:
             pass
 
@@ -111,8 +104,8 @@ class BaseMoError(Exception):
             params = list(self.args[2:])
             message = message % tuple(params)
             return BaseMoError.build_message_error(code, message)
-
-        return BaseMoError.build_message_error(code, message, errors)
+        else:
+            return BaseMoError.build_message_error(code, message, errors)
 
     @staticmethod
     def build_message_error(code, message, errors=None):
