@@ -9,8 +9,8 @@ import configparser
 import datetime
 import logging.config
 
-from common import DMAI_CONFIG_FILE_PATH, DMAI_LOG_CONFIG_FILE_PATH, DMAI_LOG_FILE_PATH
-from libs.singleton import Singleton
+from src.common import DMAI_CONFIG_FILE_PATH, DMAI_LOG_CONFIG_FILE_PATH, DMAI_LOG_FILE_PATH
+from src.libs.singleton import Singleton
 
 
 @Singleton

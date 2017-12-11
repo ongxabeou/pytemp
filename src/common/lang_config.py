@@ -5,8 +5,8 @@
 """
 import json
 
-from common import DMAI_LANG_VI_FILE_PATH, DMAI_LANG_EN_FILE_PATH, open_file
-from libs.singleton import Singleton
+from src.common import DMAI_LANG_VI_FILE_PATH, DMAI_LANG_EN_FILE_PATH, open_file
+from src.libs.singleton import Singleton
 
 
 def _lang_json(lang='vi'):

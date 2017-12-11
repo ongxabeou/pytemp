@@ -8,11 +8,11 @@
 
 import json
 
-from common.lang_config import LANG
-from common.my_except import LogicSystemError, ParamInvalidError, InputNotFoundError
-from libs.singleton import Singleton
-from common import open_file, MODE_WRITE
-from models import CONFIG_BOTS_PATH, BOT_STRUCTURE, BOTS_STRUCTURE, NLP_APP_STRUCTURE, PERMITTED_STRUCTURE
+from src.common.lang_config import LANG
+from src.common.my_except import LogicSystemError, ParamInvalidError, InputNotFoundError
+from src.libs.singleton import Singleton
+from src.common import open_file, MODE_WRITE
+from src.models import CONFIG_BOTS_PATH, BOT_STRUCTURE, BOTS_STRUCTURE, NLP_APP_STRUCTURE, PERMITTED_STRUCTURE
 
 
 @Singleton

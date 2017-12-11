@@ -6,11 +6,11 @@
     Date created: 2017/04/28
 """
 
-from controllers import CUSTOMER_STRUCTURE, META_CLASS
-from controllers.base_controller import BaseController
-from libs.http_validator import Required, Length, Unicode, Range, In, Equals, InstanceOf
-from models import BOT_STRUCTURE, CONSUMER
-from models.bot_config_repository import BotConfigRepository
+from src.controllers import CUSTOMER_STRUCTURE, META_CLASS
+from src.controllers.base_controller import BaseController
+from src.libs.http_validator import Required, Length, Unicode, Range, In, Equals, InstanceOf
+from src.models import BOT_STRUCTURE, CONSUMER
+from src.models.bot_config_repository import BotConfigRepository
 
 
 class BotController(BaseController):

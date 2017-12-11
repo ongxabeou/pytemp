@@ -1,10 +1,8 @@
-import json
 from flask import Blueprint, request
 
-from apis import API_URI, sys_conf, HTTP_METHOD, auth, build_response_message, try_catch_error
-from common import SECTION
-from common.my_except import ParamInvalidError
-from controllers.bot_controller import BotController
+from src.apis import API_URI, sys_conf, HTTP_METHOD, auth, build_response_message, try_catch_error
+from src.common import SECTION
+from src.controllers.bot_controller import BotController
 
 bot_mod = Blueprint('bot', __name__)
 

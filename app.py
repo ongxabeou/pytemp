@@ -6,7 +6,7 @@ os.environ['DMAI_HOME'], _ = os.path.split(os.path.abspath(__file__))
 
 from flask import Flask
 from flask_cors import CORS
-from apis.bot import bot_mod
+from src.apis.bot import bot_mod
 
 app = Flask(__name__)
 app.register_blueprint(bot_mod)

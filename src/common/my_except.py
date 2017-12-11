@@ -10,9 +10,9 @@ from functools import wraps
 
 from flask import request
 
-from common import SECTION, LOGGING_MODE
-from common.lang_config import LangConfig, LANG, LANG_STRUCTURE, LANG_VI, LANG_EN
-from common.system_config import SystemConfig
+from src.common import SECTION, LOGGING_MODE
+from src.common.lang_config import LangConfig, LANG, LANG_STRUCTURE, LANG_VI, LANG_EN
+from src.common.system_config import SystemConfig
 
 
 class BaseMoError(Exception):

@@ -8,12 +8,12 @@
 
 import hashlib
 
-from common.lang_config import LANG
-from common.my_except import InputNotFoundError
-from libs.caching import LRUCacheDict
-from libs.singleton import Singleton
-from models import BOT_STRUCTURE, NLP_APP_STRUCTURE
-from models.bot_config_repository import BotConfigRepository
+from src.common.lang_config import LANG
+from src.common.my_except import InputNotFoundError
+from src.libs.caching import LRUCacheDict
+from src.libs.singleton import Singleton
+from src.models import BOT_STRUCTURE, NLP_APP_STRUCTURE
+from src.models.bot_config_repository import BotConfigRepository
 
 
 @Singleton
@@ -28,7 +28,6 @@ class IntentRepository:
     def get(self, bot_id, message):
         """
         lấy intent theo message
-        :param lang:
         :param bot_id:
         :param message:
         :return:

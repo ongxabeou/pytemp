@@ -8,9 +8,9 @@
 
 from flask import request
 
-from common.lang_config import LANG_VI, LANG_EN, LANG
-from common.my_except import ParamInvalidError
-from libs.http_validator import VALIDATION_RESULT, HttpValidator
+from src.common.lang_config import LANG_VI, LANG_EN, LANG
+from src.common.my_except import ParamInvalidError
+from src.libs.http_validator import VALIDATION_RESULT, HttpValidator
 
 
 class BaseController(object):

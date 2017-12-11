@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from common import WORKING_DIR
+from src.common import WORKING_DIR
 
 CONFIG_BOTS_PATH = WORKING_DIR + '/resources/configs/bots.json'
 

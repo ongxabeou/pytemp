@@ -2,13 +2,13 @@
 # -*- coding: utf-8 -*-
 from flask import Flask, jsonify
 
-from common.lang_config import LANG
-from common.my_except import BaseMoError, ParamInvalidError, InputNotFoundError, LogicSystemError
-from common.system_config import SystemConfig
-from libs.http_jwt_auth import HttpJwtAuth
-from models.bot_config_repository import BotConfigRepository
-from models import PERMITTED_STRUCTURE
-from common import ADMIN
+from src.common.lang_config import LANG
+from src.common.my_except import BaseMoError, ParamInvalidError, InputNotFoundError, LogicSystemError
+from src.common.system_config import SystemConfig
+from src.libs.http_jwt_auth import HttpJwtAuth
+from src.models.bot_config_repository import BotConfigRepository
+from src.models import PERMITTED_STRUCTURE
+from src.common import ADMIN
 from functools import wraps
 
 
