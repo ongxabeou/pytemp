@@ -20,7 +20,11 @@ class BaseMoError(Exception):
 
     def __init__(self, *args):  # real signature unknown
         # *args is used to get a list of the parameters passed in
-        self.args = [a for a in args]
+        array = [a for a in args]
+        for i in range(len(array)):
+            if isinstance(array[i], str):
+                array[i] = str(array[i]).encode('utf-8')
+        self.args = array
         param = None
         try:
             param = request.args.get('lang')
