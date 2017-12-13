@@ -89,15 +89,22 @@ def get_local_token(token):
 
 
 @auth.is_permitted
-def is_permitted(jwt_token, method):
-    bot_conf = BotConfigRepository()
-    if bot_conf.user_permitted[PERMITTED_STRUCTURE.METHODS].index(method) >= 0:
-        return True
+def is_permitted(typically, jwt_token, method):
+    if typically == 'digest':
+        # nếu type của Authorization là Bearer hoặc Digest
+        # hệ thống tự động chuyển sang digest đây là trường
+        # phải check theo thuật toán JWT.
+        return False
+    elif typically == 'basic':
+        # trường hợp type là basic thì check api_key cơ bản
+        bot_conf = BotConfigRepository()
+        if bot_conf.user_permitted[PERMITTED_STRUCTURE.METHODS].index(method) >= 0:
+            return True
 
-    admin_token = sys_conf.get_section_map(ADMIN.SECTION)[ADMIN.TOKEN]
+        admin_token = sys_conf.get_section_map(ADMIN.SECTION)[ADMIN.TOKEN]
 
-    if admin_token == jwt_token:
-        return bot_conf.admin_permitted[PERMITTED_STRUCTURE.METHODS].index(method) >= 0
+        if admin_token == jwt_token:
+            return bot_conf.admin_permitted[PERMITTED_STRUCTURE.METHODS].index(method) >= 0
 
     return False
 

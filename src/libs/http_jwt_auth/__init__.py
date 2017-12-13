@@ -57,6 +57,7 @@ class HttpJwtAuth(object):
         def decorated_function(*args, **kwargs):
             auth = request.authorization
             token = None
+            auth_type = None
             # link jwt: https://jwt.io/introduction/
             if auth is None and 'Authorization' in request.headers:
                 # Flask/Werkzeug không công nhận bất kỳ loại authentication
@@ -82,7 +83,7 @@ class HttpJwtAuth(object):
             # để tránh những tương tác không mong muốn với CORS.
             if request.method != 'OPTIONS':  # pragma: no cover
                 if auth:
-                    if not self.authenticate(token, method):
+                    if not self.authenticate(str(auth_type).lower(), token, method):
                         # Xóa bộ đệm TCP nhận được dữ liệu đang chờ xử lý
                         print('authenticate for token %s api_name  %s error %s' % (
                             token, method, str(request.data)[0]))
@@ -93,11 +94,11 @@ class HttpJwtAuth(object):
 
         return decorated_function
 
-    def authenticate(self, token, method):
+    def authenticate(self, auth_type, token, method):
         if self.get_token_callback:
             local_token = self.get_token_callback(token)
             if self.is_permitted_callback and token == local_token:
-                return self.is_permitted_callback(token, method)
+                return self.is_permitted_callback(auth_type, token, method)
             return token == local_token
         else:
             raise NotImplementedError('developer must implement get_token for callback')
