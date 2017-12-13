@@ -57,12 +57,14 @@ class HttpJwtAuth(object):
         def decorated_function(*args, **kwargs):
             auth = request.authorization
             token = None
+            # link jwt: https://jwt.io/introduction/
             if auth is None and 'Authorization' in request.headers:
                 # Flask/Werkzeug không công nhận bất kỳ loại authentication
                 # nào khác ngoài Basic or Digest, vì vậy cần chuyển đối tượng
                 # bằng tay
                 try:
                     auth_type, token = request.headers['Authorization'].split(None, 1)
+                    auth_type = 'Digest' if str(auth_type).lower()=='bearer' else auth_type
                     auth = Authorization(auth_type, {'token': token})
                 except ValueError:
                     # Authorization header là rỗng hoặc không có mã thông báo
