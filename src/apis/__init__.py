@@ -5,7 +5,7 @@ from flask import Flask, jsonify
 from src.common.lang_config import LANG
 from src.common.my_except import BaseMoError, ParamInvalidError, InputNotFoundError, LogicSystemError
 from src.common.system_config import SystemConfig
-from src.libs.http_jwt_auth import HttpJwtAuth
+from src.libs.http_jwt_auth import HttpJwtAuth, TYPICALLY
 from src.models.bot_config_repository import BotConfigRepository
 from src.models import PERMITTED_STRUCTURE
 from src.common import ADMIN, SECTION, LOGGING_MODE
@@ -90,12 +90,12 @@ def get_local_token(token):
 
 @auth.is_permitted
 def is_permitted(typically, jwt_token, method):
-    if typically == 'digest':
+    if typically == TYPICALLY.DIGEST:
         # nếu type của Authorization là Bearer hoặc Digest
         # hệ thống tự động chuyển sang digest đây là trường
         # phải check theo thuật toán JWT.
         return False
-    elif typically == 'basic':
+    elif typically == TYPICALLY.BASIC:
         # trường hợp type là basic thì check api_key cơ bản
         bot_conf = BotConfigRepository()
         if bot_conf.user_permitted[PERMITTED_STRUCTURE.METHODS].index(method) >= 0:

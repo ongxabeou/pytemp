@@ -10,6 +10,12 @@ from flask import make_response, request
 from werkzeug.datastructures import Authorization
 
 
+class TYPICALLY:
+    BASIC = 'Basic'
+    BEARER = 'Bearer'
+    DIGEST = 'Digest'
+
+
 class HttpJwtAuth(object):
     def __init__(self, scheme=None, realm=None):
         self.scheme = scheme or 'Basic'
@@ -65,7 +71,7 @@ class HttpJwtAuth(object):
                 # bằng tay
                 try:
                     auth_type, token = request.headers['Authorization'].split(None, 1)
-                    auth_type = 'Digest' if str(auth_type).lower() == 'bearer' else auth_type
+                    auth_type = TYPICALLY.DIGEST if auth_type == TYPICALLY.BEARER else auth_type
                     auth = Authorization(auth_type, {'token': token})
                 except ValueError:
                     # Authorization header là rỗng hoặc không có mã thông báo
