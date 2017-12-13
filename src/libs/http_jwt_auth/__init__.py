@@ -23,18 +23,18 @@ class HttpJwtAuth(object):
 
         self.error_handler(default_auth_error)
 
-    def get_token(self, func):
-        self.get_token_callback = func
-        return func
+    def get_token(self, f):
+        self.get_token_callback = f
+        return f
 
-    def is_permitted(self, func):
-        self.is_permitted_callback = func
-        return func
+    def is_permitted(self, f):
+        self.is_permitted_callback = f
+        return f
 
-    def error_handler(self, func):
-        @wraps(func)
+    def error_handler(self, f):
+        @wraps(f)
         def decorated(*args, **kwargs):
-            result = func(*args, **kwargs)
+            result = f(*args, **kwargs)
             result = make_response(result)
             if result.status_code == 200:
                 # nếu người dùng không set status code thì set cho nó là 401
@@ -64,7 +64,7 @@ class HttpJwtAuth(object):
                 # bằng tay
                 try:
                     auth_type, token = request.headers['Authorization'].split(None, 1)
-                    auth_type = 'Digest' if str(auth_type).lower()=='bearer' else auth_type
+                    auth_type = 'Digest' if str(auth_type).lower() == 'bearer' else auth_type
                     auth = Authorization(auth_type, {'token': token})
                 except ValueError:
                     # Authorization header là rỗng hoặc không có mã thông báo
@@ -112,8 +112,8 @@ if __name__ == '__main__':
             try:
                 print('ok 2')
                 return f(*args, **kwargs)
-            except:
-                print('try_catch_error2')
+            except Exception as e:
+                print('try_catch_error2', e)
 
         return decorated
 
@@ -124,8 +124,8 @@ if __name__ == '__main__':
             try:
                 print('ok 1')
                 return f(*args, **kwargs)
-            except:
-                print('try_catch_error1')
+            except Exception as e:
+                print('try_catch_error1', e)
 
         return decorated
 
