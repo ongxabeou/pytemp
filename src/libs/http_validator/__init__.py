@@ -15,13 +15,57 @@ from collections import namedtuple
 from collections import defaultdict
 from abc import ABCMeta, abstractmethod
 from functools import wraps
-from flask import request, abort
+
+import os
+from flask import request, abort, json
 
 # from Scripts.bottle import basestring
 # chỉ dùng cách này cho python3
 basestring = str
 
 __version__ = "1.2.5"
+
+RESOURCE_OF_HTTP_VALIDATE = None
+try:
+    RESOURCE_OF_HTTP_VALIDATE, _ = os.path.split(os.path.abspath(__file__))
+except:
+    pass
+
+
+def __open_file(path):
+    try:
+        return open(path, encoding='UTF-8', mode='r')
+    except UnicodeDecodeError:
+        return open(path, encoding='ASCII', mode='r')
+
+
+def __load_lang_json(param):
+    if RESOURCE_OF_HTTP_VALIDATE:
+        path = '%s/message_vi.json' % RESOURCE_OF_HTTP_VALIDATE
+
+        if param == 'en':
+            path = '%s/message_en.json' % RESOURCE_OF_HTTP_VALIDATE
+
+        with __open_file(path) as data_file:
+            return json.loads(data_file.read())
+
+    return None
+
+
+__lang_dict_vi = __load_lang_json('vi')
+__lang_dict_en = __load_lang_json('en')
+
+
+def _get_lang():
+    param = 'en'
+    try:
+        param = request.args.get('lang')
+        if param and param not in ('vi', 'en'):
+            param = 'en'
+    except:
+        pass
+
+    return __lang_dict_en if param == 'en' else __lang_dict_vi
 
 
 class VALIDATION_RESULT:
@@ -63,6 +107,16 @@ class Validator(object):
     def __call__(self, *args, **kwargs):
         raise NotImplementedError
 
+    _lang_dict = None
+
+    def set_lang_message(self, message_name):
+        lang_dict = _get_lang()
+        if lang_dict:
+            self.err_message = lang_dict[message_name]['err_message']
+            self.not_message = lang_dict[message_name]['not_message']
+            return True
+        return False
+
 
 class In(Validator):
     """
@@ -85,6 +139,9 @@ class In(Validator):
         self.collection = collection
         self.err_message = "must be one of %r" % collection
         self.not_message = "must not be one of %r" % collection
+        if self.set_lang_message('in'):
+            self.err_message %= collection
+            self.not_message %= collection
 
     def __call__(self, value):
         return value in self.collection
@@ -102,6 +159,10 @@ class Not(Validator):
         self.validator = validator
         self.err_message = getattr(validator, "not_message", "failed validation")
         self.not_message = getattr(validator, "err_message", "failed validation")
+        lang_dict = _get_lang()
+        if lang_dict:
+            self.err_message = getattr(validator, "not_message", lang_dict['validator']["not_message"])
+            self.not_message = getattr(validator, "err_message", lang_dict['validator']["err_message"])
 
     def __call__(self, value):
         return not self.validator(value)
@@ -131,6 +192,9 @@ class Range(Validator):
         self.inclusive = inclusive
         self.err_message = "must fall between %s and %s" % (start, end)
         self.not_message = "must not fall between %s and %s" % (start, end)
+        if self.set_lang_message('range'):
+            self.err_message %= (start, end)
+            self.not_message %= (start, end)
 
     def __call__(self, value):
         if self.inclusive:
@@ -160,6 +224,9 @@ class Equals(Validator):
         self.obj = obj
         self.err_message = "must be equal to %r" % obj
         self.not_message = "must not be equal to %r" % obj
+        if self.set_lang_message('equals'):
+            self.err_message %= obj
+            self.not_message %= obj
 
     def __call__(self, value):
         return value == self.obj
@@ -187,6 +254,7 @@ class Blank(Validator):
     def __init__(self):
         self.err_message = "must be an empty string"
         self.not_message = "must not be an empty string"
+        self.set_lang_message('blank')
 
     def __call__(self, value):
         return value == ""
@@ -213,6 +281,7 @@ class Truthy(Validator):
     def __init__(self):
         self.err_message = "must be True-equivalent value"
         self.not_message = "must be False-equivalent value"
+        self.set_lang_message('truthy')
 
     def __call__(self, value):
         if value:
@@ -266,6 +335,9 @@ class InstanceOf(Validator):
         self.base_class = base_class
         self.err_message = "must be an instance of %s or its subclasses" % base_class.__name__
         self.not_message = "must not be an instance of %s or its subclasses" % base_class.__name__
+        if self.set_lang_message('instance_of'):
+            self.err_message %= base_class.__name__
+            self.not_message %= base_class.__name__
 
     def __call__(self, value):
         return isinstance(value, self.base_class)
@@ -291,6 +363,9 @@ class SubclassOf(Validator):
         self.base_class = base_class
         self.err_message = "must be a subclass of %s" % base_class.__name__
         self.not_message = "must not be a subclass of %s" % base_class.__name__
+        if self.set_lang_message('subclass_of'):
+            self.err_message %= base_class.__name__
+            self.not_message %= base_class.__name__
 
     def __call__(self, class_):
         return issubclass(class_, self.base_class)
@@ -318,6 +393,9 @@ class Pattern(Validator):
         self.err_message = "must match regex pattern %s" % pattern
         self.not_message = "must not match regex pattern %s" % pattern
         self.compiled = re.compile(pattern)
+        if self.set_lang_message('pattern'):
+            self.err_message %= pattern
+            self.not_message %= pattern
 
     def __call__(self, value):
         return self.compiled.match(value)
@@ -410,6 +488,10 @@ class Length(Validator):
         if minimum < 0 or maximum < 0:
             raise ValueError("Length cannot have negative parameters.")
 
+        lang_dict = _get_lang()
+        if lang_dict:
+            self.err_messages = lang_dict['length']
+
         self.minimum = minimum
         self.maximum = maximum
         if minimum and maximum:
@@ -449,6 +531,9 @@ class Contains(Validator):
         self.contained = contained
         self.err_message = "must contain {0}".format(contained)
         self.not_message = "must not contain {0}".format(contained)
+        if self.set_lang_message('contains'):
+            self.err_message = self.err_message.format(contained)
+            self.not_message = self.not_message.format(contained)
 
     def __call__(self, container):
         return self.contained in container
@@ -665,6 +750,10 @@ class PhoneNumber(Validator):
         self.err_message = "must match regex pattern example (123) 456 7899 or " \
                            "(123).456.7899 or (123)-456-7899 or 123-456-7899 or 123 456 7899 or 1234567899"
         self.not_message = "must not match regex pattern %s" % pattern
+
+        if self.set_lang_message('phone_number'):
+            self.not_message %= pattern
+
         self.compiled = re.compile(pattern)
 
     def __call__(self, value):
@@ -694,6 +783,9 @@ class Email(Validator):
         self.not_message = "must not match regex pattern %s" % pattern
         self.compiled = re.compile(pattern)
 
+        if self.set_lang_message('email'):
+            self.not_message %= pattern
+
     def __call__(self, value):
         return self.compiled.match(value)
 
@@ -721,6 +813,9 @@ class DateTime(Validator):
         self.not_message = "must not match regex pattern %s" % pattern
         self.compiled = re.compile(pattern)
 
+        if self.set_lang_message('date_time'):
+            self.not_message %= pattern
+
     def __call__(self, value):
         return self.compiled.match(value)
 
@@ -746,6 +841,7 @@ class Unicode(Validator):
     def __init__(self):
         self.err_message = "must be unicode value"
         self.not_message = "must be not unicode value"
+        self.set_lang_message('unicode')
 
     def __call__(self, value):
         try:
@@ -799,8 +895,6 @@ if __name__ == '__main__':
         vdic[key] = value[0]
     print(vdic)
     v = val.validate_field(a_false, 'time')
-
-
 
     print(v[0])
     print(v[1]['time'][0])

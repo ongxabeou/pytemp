@@ -89,7 +89,7 @@ class HttpJwtAuth(object):
             # để tránh những tương tác không mong muốn với CORS.
             if request.method != 'OPTIONS':  # pragma: no cover
                 if auth:
-                    if not self.authenticate(str(auth_type).lower(), token, method):
+                    if not self.authenticate(str(auth_type), token, method):
                         # Xóa bộ đệm TCP nhận được dữ liệu đang chờ xử lý
                         print('authenticate for token %s api_name  %s error %s' % (
                             token, method, str(request.data)[0]))

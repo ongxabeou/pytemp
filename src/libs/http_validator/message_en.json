@@ -1,0 +1,63 @@
+{
+  "validator": {
+    "err_message": "failed validation",
+    "not_message": "failed validation"
+  },
+  "in": {
+    "err_message": "must be one of %r",
+    "not_message": "must not be one of %r"
+  },
+  "range": {
+    "err_message": "must fall between %s and %s",
+    "not_message": "must not fall between %s and %s"
+  },
+  "equals": {
+    "err_message": "must be equal to %r",
+    "not_message": "must not be equal to %r"
+  },
+  "blank": {
+    "err_message": "must be an empty string",
+    "not_message": "must not be an empty string"
+  },
+  "truthy": {
+    "err_message": "must be True-equivalent value",
+    "not_message": "must be False-equivalent value"
+  },
+  "instance_of": {
+    "err_message": "must be an instance of %s or its subclasses",
+    "not_message": "must not be an instance of %s or its subclasses"
+  },
+  "subclass_of": {
+    "err_message": "must be a subclass of %s",
+    "not_message": "must not be a subclass of %s"
+  },
+  "pattern": {
+    "err_message": "must match regex pattern %s",
+    "not_message": "must not match regex pattern %s"
+  },
+  "length": {
+    "maximum": "must be at most {0} elements in length",
+    "minimum": "must be at least {0} elements in length",
+    "range": "must{0}be between {1} and {2} elements in length"
+  },
+  "contains": {
+    "err_message": "must contain {0}",
+    "not_message": "must not contain {0}"
+  },
+  "phone_number": {
+    "err_message": "must match regex pattern example (123) 456 7899 or (123).456.7899 or (123)-456-7899 or 123-456-7899 or 123 456 7899 or 1234567899",
+    "not_message": "must not match regex pattern %s"
+  },
+  "email": {
+    "err_message": "must match regex pattern example lytuananh2003@gmail.com",
+    "not_message": "must not match regex pattern %s"
+  },
+  "date_time": {
+    "err_message": "must match regex pattern example: 2017-04-30 19:59:00",
+    "not_message": "must not match regex pattern %s"
+  },
+  "unicode": {
+    "err_message": "must be unicode value",
+    "not_message": "must be not unicode value"
+  }
+}
