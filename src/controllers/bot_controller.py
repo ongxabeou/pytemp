@@ -8,7 +8,8 @@
 
 from src.controllers import CUSTOMER_STRUCTURE, META_CLASS
 from src.controllers.base_controller import BaseController
-from src.libs.http_validator import Required, Length, Unicode, Range, In, Equals, InstanceOf
+from src.libs.http_validator import Required, Length, Unicode, Range, In, Equals, InstanceOf, HttpValidator, \
+    PhoneNumber, Email
 from src.models import BOT_STRUCTURE, CONSUMER
 from src.models.bot_config_repository import BotConfigRepository
 
@@ -64,12 +65,14 @@ class BotController(BaseController):
             CONSUMER.NAME: [Required, Length(0, maximum=64)],
             CONSUMER.ADDRESS: [Required, Length(0, maximum=128)],
             CONSUMER.PRODUCT: [Required, Length(0, maximum=128)],
-            CONSUMER.PHONE: [Required, Length(0, maximum=16)],
+            CONSUMER.PHONE: [Required, PhoneNumber()],
+            CONSUMER.EMAIL: [Required, Email()],
             CONSUMER.UNIT: [Required, Length(0, maximum=64)],
         }
         self.abort_if_data_invalid(rules_for_consumer, bot_config[BOT_STRUCTURE.CONSUMER])
 
-        return BotConfigRepository().set(self.bot_id, bot_config)
+        return BotConfigRepository().get(self.bot_id)
+        # return BotConfigRepository().set(self.bot_id, bot_config)
 
     def get(self):
         return BotConfigRepository().get(self.bot_id)

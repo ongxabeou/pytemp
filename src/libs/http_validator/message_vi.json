@@ -45,7 +45,7 @@
     "not_message": "must not contain {0}"
   },
   "phone_number": {
-    "err_message": "must match regex pattern example (123) 456 7899 or (123).456.7899 or (123)-456-7899 or 123-456-7899 or 123 456 7899 or 1234567899",
+    "err_message": "must match regex pattern example (098) 883 0588 or (098).883.0588 or (098)-883-0588 or 098-883-0588 or 098 883 0588 or 0988830588",
     "not_message": "must not match regex pattern %s"
   },
   "email": {

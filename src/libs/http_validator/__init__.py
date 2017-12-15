@@ -727,6 +727,19 @@ class HttpValidator(object):
 
         return decorated
 
+    def raise_except_if_json_invalid(self, get_exception_callback):
+        def real_decorated(f):
+            @wraps(f)
+            def decorated(*args, **kwargs):
+                result = self.validate_object(request.json)
+                if not result[0]:
+                    raise get_exception_callback(result)
+                return f(*args, **kwargs)
+
+            return decorated
+
+        return real_decorated
+
 
 class PhoneNumber(Validator):
     """
@@ -740,15 +753,15 @@ class PhoneNumber(Validator):
         validations = {
             "field": [Pattern('/\(?([0-9]{3})\)?([ .-]?)([0-9]{3})\2([0-9]{4})/')]
         }
-        passes = {"field": "lytuananh2003@gmail.com"}
-        fails  = {"field": "lytuananh2003.gmail"}
+        passes = {"field": "098 883 0588"}
+        fails  = {"field": "098--883-0588"}
 
     """
 
     def __init__(self):
         pattern = r'\(?([0-9]{3})\)?([ .-]?)([0-9]{3})\2([0-9]{4})'
-        self.err_message = "must match regex pattern example (123) 456 7899 or " \
-                           "(123).456.7899 or (123)-456-7899 or 123-456-7899 or 123 456 7899 or 1234567899"
+        self.err_message = "must match regex pattern example (098) 883 0588 or " \
+                           "(098).883.0588 or (098)-883-0588 or 098-883-0588 or 098 883 0588 or 0988830588"
         self.not_message = "must not match regex pattern %s" % pattern
 
         if self.set_lang_message('phone_number'):

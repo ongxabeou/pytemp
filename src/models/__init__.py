@@ -25,6 +25,7 @@ class CONSUMER:
     NAME = "name"
     PRODUCT = "product"
     PHONE = "phone"
+    EMAIL = "email"
     ADDRESS = "address"
     UNIT = "unit"
 

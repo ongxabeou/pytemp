@@ -33,6 +33,10 @@ sys_conf = SystemConfig()
 auth = HttpJwtAuth()
 
 
+def get_param_exception(errors):
+    return ParamInvalidError(LANG.VALIDATE_ERROR, errors)
+
+
 def build_response_message(data=None):
     message = BaseMoError(LANG.MESSAGE_SUCCESS).get_message()
     log_mod = sys_conf.get_section_map(SECTION.LOGGING_MODE)
@@ -82,7 +86,7 @@ def get_local_token(token):
     try:
         if not token:
             return None
-        print('%s request authenticated' % BotConfigRepository().token_dic[token])
+        print('%s request authenticated' % token)
         return token
     except KeyError:
         return None
@@ -98,13 +102,13 @@ def is_permitted(typically, jwt_token, method):
     elif typically == TYPICALLY.BASIC:
         # trường hợp type là basic thì check api_key cơ bản
         bot_conf = BotConfigRepository()
-        if bot_conf.user_permitted[PERMITTED_STRUCTURE.METHODS].index(method) >= 0:
+        if method in list(bot_conf.user_permitted[PERMITTED_STRUCTURE.METHODS]):
             return True
 
         admin_token = sys_conf.get_section_map(ADMIN.SECTION)[ADMIN.TOKEN]
 
         if admin_token == jwt_token:
-            return bot_conf.admin_permitted[PERMITTED_STRUCTURE.METHODS].index(method) >= 0
+            return method in list(bot_conf.admin_permitted[PERMITTED_STRUCTURE.METHODS])
 
     return False
 
