@@ -16,7 +16,7 @@ from src.libs.http_validator import VALIDATION_RESULT, HttpValidator
 class BaseController(object):
 
     @staticmethod
-    def abort_if_invalid(rules, data):
+    def abort_if_data_invalid(rules, data):
         valid = HttpValidator(rules)
         val_result = valid.validate_object(data)
         if not val_result[VALIDATION_RESULT.VALID]:
