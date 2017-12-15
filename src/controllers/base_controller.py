@@ -14,10 +14,9 @@ from src.libs.http_validator import VALIDATION_RESULT, HttpValidator
 
 
 class BaseController(object):
-    PARAM_INVALID_VALUE = 412
 
     @staticmethod
-    def abort_if_validate_error(rules, data):
+    def abort_if_invalid(rules, data):
         valid = HttpValidator(rules)
         val_result = valid.validate_object(data)
         if not val_result[VALIDATION_RESULT.VALID]:
@@ -25,7 +24,7 @@ class BaseController(object):
             raise ParamInvalidError(LANG.VALIDATE_ERROR, errors)
 
     @staticmethod
-    def abort_if_param_empty_error(param, param_name):
+    def abort_if_param_none_or_empty(param, param_name):
         if param is None or param is '':
             raise ParamInvalidError(LANG.MUST_NOT_EMPTY, param_name)
 

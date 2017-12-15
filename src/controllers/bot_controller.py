@@ -16,11 +16,11 @@ from src.models.bot_config_repository import BotConfigRepository
 class BotController(BaseController):
     def __init__(self, bot_id):
         super(BotController, self).__init__()
-        self.abort_if_param_empty_error(bot_id, 'bot_id')
+        self.abort_if_param_none_or_empty(bot_id, 'bot_id')
         self.bot_id = bot_id
 
     def put(self, customer):
-        self.abort_if_param_empty_error(customer, 'thông tin khách hàng')
+        self.abort_if_param_none_or_empty(customer, 'thông tin khách hàng')
 
         rules = {
             CUSTOMER_STRUCTURE.ID: [Required, InstanceOf(str), Length(0, maximum=36)],
@@ -30,7 +30,7 @@ class BotController(BaseController):
             CUSTOMER_STRUCTURE.MESSAGE: [Required, InstanceOf(str), Length(0, maximum=1024)],
         }
 
-        self.abort_if_validate_error(rules, customer)
+        self.abort_if_invalid(rules, customer)
 
         return 'say hello, đây là project mẫu'
 
@@ -38,7 +38,7 @@ class BotController(BaseController):
         return BotConfigRepository().delete(self.bot_id)
 
     def set(self, bot_config):
-        self.abort_if_param_empty_error(bot_config, 'bot config')
+        self.abort_if_param_none_or_empty(bot_config, 'bot config')
 
         rules = {
             BOT_STRUCTURE.ID: [Required, Length(0, maximum=36)],
@@ -50,14 +50,14 @@ class BotController(BaseController):
             BOT_STRUCTURE.CONSUMER: [Required]
         }
 
-        self.abort_if_validate_error(rules, bot_config)
+        self.abort_if_invalid(rules, bot_config)
 
         rules_for_mata_class = {
             META_CLASS.MODULE_NAME: [Required, Length(0, maximum=64)],
             META_CLASS.CLASS_NAME: [Required, Length(0, maximum=64)],
         }
 
-        self.abort_if_validate_error(rules_for_mata_class, bot_config[BOT_STRUCTURE.META_CLASS])
+        self.abort_if_invalid(rules_for_mata_class, bot_config[BOT_STRUCTURE.META_CLASS])
 
         rules_for_consumer = {
             CONSUMER.ID: [Required, Length(0, maximum=64)],
@@ -67,7 +67,7 @@ class BotController(BaseController):
             CONSUMER.PHONE: [Required, Length(0, maximum=16)],
             CONSUMER.UNIT: [Required, Length(0, maximum=64)],
         }
-        self.abort_if_validate_error(rules_for_consumer, bot_config[BOT_STRUCTURE.CONSUMER])
+        self.abort_if_invalid(rules_for_consumer, bot_config[BOT_STRUCTURE.CONSUMER])
 
         return BotConfigRepository().set(self.bot_id, bot_config)
 
@@ -75,7 +75,7 @@ class BotController(BaseController):
         return BotConfigRepository().get(self.bot_id)
 
     def register(self, bot_config):
-        self.abort_if_param_empty_error(bot_config, 'bot config')
+        self.abort_if_param_none_or_empty(bot_config, 'bot config')
         rules = {
             BOT_STRUCTURE.ID: [Required, Length(0, maximum=36)],
             BOT_STRUCTURE.NAME: [Required, Unicode(), Length(0, maximum=64)],
@@ -85,13 +85,13 @@ class BotController(BaseController):
             BOT_STRUCTURE.META_CLASS: [Required],
             BOT_STRUCTURE.CONSUMER: [Required]
         }
-        self.abort_if_validate_error(rules, bot_config)
+        self.abort_if_invalid(rules, bot_config)
 
         rules_for_mata_class = {
             META_CLASS.MODULE_NAME: [Required, Length(0, maximum=64)],
             META_CLASS.CLASS_NAME: [Required, Length(0, maximum=64)],
         }
-        self.abort_if_validate_error(rules_for_mata_class, bot_config[BOT_STRUCTURE.META_CLASS])
+        self.abort_if_invalid(rules_for_mata_class, bot_config[BOT_STRUCTURE.META_CLASS])
 
         rules_for_consumer = {
             CONSUMER.ID: [Required, Length(0, maximum=64)],
@@ -101,6 +101,6 @@ class BotController(BaseController):
             CONSUMER.PHONE: [Required, Length(0, maximum=16)],
             CONSUMER.UNIT: [Required, Length(0, maximum=64)],
         }
-        self.abort_if_validate_error(rules_for_consumer, bot_config[BOT_STRUCTURE.CONSUMER])
+        self.abort_if_invalid(rules_for_consumer, bot_config[BOT_STRUCTURE.CONSUMER])
 
         return BotConfigRepository().register(self.bot_id, bot_config)
