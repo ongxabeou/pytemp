@@ -3,15 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="96a0c587-0594-4154-bb16-783446672b11" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/readme.md" afterPath="$PROJECT_DIR$/readme.md" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/resources/configs/dmai.conf" afterPath="$PROJECT_DIR$/resources/configs/dmai.conf" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/apis/__init__.py" afterPath="$PROJECT_DIR$/src/apis/__init__.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/apis/bot.py" afterPath="$PROJECT_DIR$/src/apis/bot.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/controllers/bot_controller.py" afterPath="$PROJECT_DIR$/src/controllers/bot_controller.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/libs/http_validator/__init__.py" afterPath="$PROJECT_DIR$/src/libs/http_validator/__init__.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/libs/http_validator/message_en.json" afterPath="$PROJECT_DIR$/src/libs/http_validator/message_en.json" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/libs/http_validator/message_vi.json" afterPath="$PROJECT_DIR$/src/libs/http_validator/message_vi.json" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/models/__init__.py" afterPath="$PROJECT_DIR$/src/models/__init__.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -78,8 +69,8 @@
         <entry file="file://$PROJECT_DIR$/readme.md">
           <provider selected="true" editor-type-id="split-provider[text-editor;MarkdownPreviewEditor]">
             <state split_layout="SPLIT">
-              <first_editor relative-caret-position="376">
-                <caret line="22" column="14" lean-forward="true" selection-start-line="22" selection-start-column="14" selection-end-line="22" selection-end-column="14" />
+              <first_editor relative-caret-position="375">
+                <caret line="45" column="0" lean-forward="true" selection-start-line="45" selection-start-column="0" selection-end-line="45" selection-end-column="0" />
                 <folding />
               </first_editor>
               <second_editor>
@@ -521,7 +512,14 @@
       <option name="project" value="LOCAL" />
       <updated>1513351297912</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL-00022" summary="fix name function for BaseController">
+      <created>1513356158336</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1513356158336</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -961,8 +959,8 @@
     <entry file="file://$PROJECT_DIR$/readme.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;MarkdownPreviewEditor]">
         <state split_layout="SPLIT">
-          <first_editor relative-caret-position="376">
-            <caret line="22" column="14" lean-forward="true" selection-start-line="22" selection-start-column="14" selection-end-line="22" selection-end-column="14" />
+          <first_editor relative-caret-position="375">
+            <caret line="45" column="0" lean-forward="true" selection-start-line="45" selection-start-column="0" selection-end-line="45" selection-end-column="0" />
             <folding />
           </first_editor>
           <second_editor>
