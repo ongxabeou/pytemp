@@ -702,7 +702,7 @@ class HttpValidator(object):
     def validate_object(self, obj):
         for f in obj:
             if f not in self.rules:
-                return ValidationResult(valid=False, errors={f, 'field have not in Rules'})
+                return ValidationResult(valid=False, errors={f: 'field have not in Rules'})
         r = {}
         for f in obj:
             r[f] = self.rules[f]
@@ -711,7 +711,7 @@ class HttpValidator(object):
 
     def validate_field(self, obj, field_name):
         if field_name not in self.rules:
-            return ValidationResult(valid=False, errors={field_name, 'field have not in Rules'})
+            return ValidationResult(valid=False, errors={field_name: 'field have not in Rules'})
 
         r = {field_name: self.rules[field_name]}
         v = {field_name: obj[field_name]}
@@ -726,19 +726,6 @@ class HttpValidator(object):
             return f(*args, **kwargs)
 
         return decorated
-
-    def raise_except_if_json_invalid(self, get_exception_callback):
-        def real_decorated(f):
-            @wraps(f)
-            def decorated(*args, **kwargs):
-                result = self.validate_object(request.json)
-                if not result[0]:
-                    raise get_exception_callback(result)
-                return f(*args, **kwargs)
-
-            return decorated
-
-        return real_decorated
 
 
 class PhoneNumber(Validator):

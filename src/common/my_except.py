@@ -110,6 +110,7 @@ class BaseMoError(Exception):
     @staticmethod
     def build_message_error(code, message, errors=None):
         if errors:
+            errors
             return {
                 LANG_STRUCTURE.CODE: code,
                 LANG_STRUCTURE.MESSAGE: message,

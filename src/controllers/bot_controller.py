@@ -8,8 +8,7 @@
 
 from src.controllers import CUSTOMER_STRUCTURE, META_CLASS
 from src.controllers.base_controller import BaseController
-from src.libs.http_validator import Required, Length, Unicode, Range, In, Equals, InstanceOf, HttpValidator, \
-    PhoneNumber, Email
+from src.libs.http_validator import Required, Length, Unicode, Range, In, InstanceOf, PhoneNumber, Email
 from src.models import BOT_STRUCTURE, CONSUMER
 from src.models.bot_config_repository import BotConfigRepository
 
