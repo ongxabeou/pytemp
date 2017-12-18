@@ -1,6 +1,6 @@
 {
   "unauthorized": {
-    "message": "JWT không hợp hoặc đã hết hạn, vui lòng đăng nhập lại.",
+    "message": "Token không hợp hoặc đã hết hạn, vui lòng đăng nhập lại.",
     "code": 401
   },
   "not_allowed": {

@@ -1,6 +1,6 @@
 {
   "unauthorized": {
-    "message": "JWT is invalid or is expired. Please login again.",
+    "message": "Token is invalid or is expired. Please login again.",
     "code": 401
   },
   "not_allowed": {

@@ -39,7 +39,7 @@ class BotConfigRepository:
 
     def get(self, bot_id):
         if bot_id not in self.bot_dic:
-            raise InputNotFoundError(LANG.NOT_EXIST, 'bot_id', 'củ chối rồi')
+            raise InputNotFoundError(LANG.NOT_EXIST, 'bot_id', bot_id)
         return self.bot_dic[bot_id]
 
     def delete(self, bot_id):
