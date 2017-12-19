@@ -6,11 +6,12 @@
     Date created: 2017/04/28
 """
 import datetime
+import hashlib
 from functools import wraps
 
 from flask import request
 
-from src.common import SECTION, LOGGING_MODE
+from src.common import SECTION, LOGGING_MODE, get_request_id
 from src.common.lang_config import LangConfig, LANG, LANG_STRUCTURE, LANG_VI, LANG_EN
 from src.common.system_config import SystemConfig
 
@@ -87,7 +88,8 @@ class BaseMoError(Exception):
         try:
             if mod1 or mod4 or mod5:
                 self.sys_conf.logger.debug(
-                    'HTTP/1.1 {method} {url}\n{headers}\n\nbody: {body}'.format(
+                    'request_id: {request_id} \n HTTP/1.1 {method} {url}\n{headers}\n\nbody: {body}'.format(
+                        request_id=get_request_id(),
                         method=request.method,
                         url=request.url,
                         headers='\n'.join('{}: {}'.format(k, v) for k, v in request.headers.items()),

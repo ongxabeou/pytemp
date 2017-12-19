@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import datetime
+import hashlib
 import os
+
+from flask import request
 
 WORKING_DIR = str(os.environ['DMAI_HOME'])
 MODE_WRITE = 'w'
@@ -43,3 +47,8 @@ def open_file(file_path, mode=MODE_READ):
         return open(file_path, encoding='UTF-8', mode=mode)
     except UnicodeDecodeError:
         return open(file_path, encoding='ASCII', mode=mode)
+
+
+def get_request_id():
+    identify = ("{url} {time} ".format(url=request.url, time=str(datetime.datetime.now()))).encode('utf-8')
+    return hashlib.md5(identify).hexdigest()
