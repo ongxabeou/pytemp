@@ -702,7 +702,7 @@ class HttpValidator(object):
     def validate_object(self, obj):
         for field in obj:
             if field not in self.rules:
-                return ValidationResult(valid=False, errors={f: 'field have not in Rules'})
+                return ValidationResult(valid=False, errors={field: 'field have not in Rules'})
 
         return validate(self.rules, obj)
 
