@@ -1,13 +1,18 @@
-# pytemp project mẫu cho ngôn ngữ python
+# pytemp is python template project
 
-đảm nhiệm các chức năng nhiệm vụ sau.
+I am writing this project to support backend service projects.
+It undertakes the following functions.
 
-- tự động check authentication theo chuẩn JWT
-- hỗ trợ local caching, singleton.
-- cung cấp các giải pháp HTTP validate.
-- ghi logging tự động và quản lý lỗi.
-- cung cấp giải pháp OOP cho controller.
-- hỗ trợ đa ngôn ngữ với VI và EN
+
+- Automatic JWT authentication for API
+- support local caching and singleton to manage memory.
+- Provides HTTP validate solutions for RESTFull.
+- Automatic logging and fault management.
+- Provides OOP solution for the controller.
+- Support multi language with VI and EN
+
+The project will continue to improve after I have learned from
+new projects, or ideas from the community.
 
 ## Install
 
@@ -16,7 +21,7 @@
 
 ## Usage
 
-xem cách cài đặt trong file bot.py
+See how to install the api in the bot.py file
 
 ## Apis
 
@@ -72,9 +77,16 @@ curl -X PATCH \
     "token": "bliauwbralwiubnawk24114eobn"
 }'
 ```
+
+* param body of request
+
 ![request body](https://github.com/ongxabeou/pytemp/raw/master/resources/images/1.png)
 
+* param Authorization header of request
+
 ![request header](https://github.com/ongxabeou/pytemp/raw/master/resources/images/2.PNG)
+
+* param Json has complex architecture
 
 ![request dùng cấu trúc json phúc tạp](https://github.com/ongxabeou/pytemp/raw/master/resources/images/3.PNG)
 
