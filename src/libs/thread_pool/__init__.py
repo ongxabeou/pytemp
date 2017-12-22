@@ -37,7 +37,7 @@ class Worker(Thread):
             func, args, kargs = self.tasks.get()
             try:
                 func(*args, **kargs)
-            except Exception as e:
+            except:
                 # Một trường hợp ngoại lệ đã xảy ra trong thread này
                 if self.logger is None:
                     traceback.print_exc(file=sys.stdout)
