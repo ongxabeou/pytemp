@@ -14,6 +14,7 @@ from flask import request
 from src.common import SECTION, LOGGING_MODE, get_request_id
 from src.common.lang_config import LangConfig, LANG, LANG_STRUCTURE, LANG_VI, LANG_EN
 from src.common.system_config import SystemConfig
+from src.libs.thread_pool import ThreadPool
 
 
 class BaseMoError(Exception):
@@ -112,7 +113,6 @@ class BaseMoError(Exception):
     @staticmethod
     def build_message_error(code, message, errors=None):
         if errors:
-            errors
             return {
                 LANG_STRUCTURE.CODE: code,
                 LANG_STRUCTURE.MESSAGE: message,

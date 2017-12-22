@@ -5,10 +5,11 @@
     mail: lytuananh2003@gmail.com
     Date created: 2017/12/22
 """
-
+import datetime
 import sys
 
 # để có thể chạy được cho cả python 2 và 3
+import traceback
 from functools import wraps
 
 IS_PY2 = sys.version_info < (3, 0)
@@ -24,9 +25,10 @@ from threading import Thread
 class Worker(Thread):
     """ Thread thực hiện nhiệm vụ từ một hàng đợi nhiệm vụ nhất định """
 
-    def __init__(self, tasks):
+    def __init__(self, tasks, logger):
         Thread.__init__(self)
         self.tasks = tasks
+        self.logger = logger
         self.daemon = True
         self.start()
 
@@ -37,7 +39,16 @@ class Worker(Thread):
                 func(*args, **kargs)
             except Exception as e:
                 # Một trường hợp ngoại lệ đã xảy ra trong thread này
-                print(e)
+                if self.logger is None:
+                    traceback.print_exc(file=sys.stdout)
+                else:
+                    self.logger.debug('==================================================================')
+                    if args is ():
+                        self.logger.exception('%s :: %s exception occurred' %
+                                              (str(datetime.datetime.now()), func.__name__))
+                    else:
+                        self.logger.exception('%s :: %s exception occurred with param %r' %
+                                              (str(datetime.datetime.now()), func.__name__, args))
             finally:
                 # Đánh dấu công việc này là xong, dù có ngoại lệ xảy ra hay không
                 self.tasks.task_done()
@@ -46,10 +57,10 @@ class Worker(Thread):
 class ThreadPool:
     """ Pool của Thread tiêu thụ nhiệm vụ từ một hàng đợi """
 
-    def __init__(self, num_workers):
+    def __init__(self, num_workers, logger=None):
         self.tasks = Queue(num_workers)
         for _ in range(num_workers):
-            Worker(self.tasks)
+            Worker(self.tasks, logger)
 
     def add_task(self, func, *args, **kargs):
         """ Thêm một tác vụ vào hàng đợi """
@@ -94,6 +105,10 @@ if __name__ == "__main__":
         sleep(d)
 
 
+    def func_error():
+        raise Exception("error in thread")
+
+
     # gọi hàm đã chuyển thành thread trương chình không
     # chờ xử lý xong mà vẫn sẽ đi tiếp
     wait_delay2(10)
@@ -114,5 +129,7 @@ if __name__ == "__main__":
     pool.map(wait_delay, delays)
     # thêm một nhiệm vụ đơn lẻ
     pool.add_task(wait_delay, (16, 8))
+
+    pool.add_task(func_error)
     # đợi cho đến khi tất cả nhiệm vụ được hoàn thành
     pool.wait_all_tasks_done()
