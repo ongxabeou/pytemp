@@ -108,7 +108,7 @@ class ThreadPool:
         def get_function_id(func, args, kargs=None):
             identify = "{function} {agrs} ".format(
                 function=func.__name__,
-                agrs="args %r kargs %s" % (args, kargs))
+                agrs="args %r kargs %r" % (args, kargs))
             return hashlib.md5(identify.encode('utf-8')).hexdigest()
 
 
@@ -169,5 +169,6 @@ if __name__ == "__main__":
     # đợi cho đến khi tất cả nhiệm vụ được hoàn thành
     results = pool.wait_all_tasks_done()
     # kiểm tra kết quả
-    print(func_ids)
-    print(results[func_id])
+    for id in func_ids:
+        print('function %s result %r' % (id, results[id]))
+    print('function %s result %r' % (func_id, results[func_id]))
