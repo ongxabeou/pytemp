@@ -42,13 +42,13 @@ class Worker(Thread):
                 if self.logger is None:
                     traceback.print_exc(file=sys.stdout)
                 else:
-                    self.logger.debug('==================================================================')
+                    line = '=================================================================='
                     if args is ():
-                        self.logger.exception('%s :: %s exception occurred' %
-                                              (str(datetime.datetime.now()), func.__name__))
+                        self.logger.exception('%s\n%s :: %s exception occurred' %
+                                              (line, str(datetime.datetime.now()), func.__name__))
                     else:
-                        self.logger.exception('%s :: %s exception occurred with param %r' %
-                                              (str(datetime.datetime.now()), func.__name__, args))
+                        self.logger.exception('%s\n%s :: %s exception occurred with param %r' %
+                                              (line, str(datetime.datetime.now()), func.__name__, args))
             finally:
                 # Đánh dấu công việc này là xong, dù có ngoại lệ xảy ra hay không
                 self.tasks.task_done()
@@ -69,22 +69,20 @@ class ThreadPool:
     def map(self, func, args_list):
         """ Thêm một danh sách các nhiệm vụ vào hàng đợi """
         for args in args_list:
-            self.add_task(func, args)
+            self.add_task(func, *args)
 
     def wait_all_tasks_done(self):
         """ Chờ hoàn thành tất cả các nhiệm vụ trong hàng đợi """
         self.tasks.join()
 
+    def thread(self, f):
+        """ chuyển hàm được gọi trở thành Thread để chạy ngầm """
 
-def thread(f):
-    """ chuyển hàm được gọi trở thành Thread để chạy ngầm """
+        @wraps(f)
+        def decorated(*args, **kargs):
+            self.add_task(f, *args, **kargs)
 
-    @wraps(f)
-    def decorated(*args, **kargs):
-        t = Thread(target=f, args=args, kwargs=kargs)
-        t.start()
-
-    return decorated
+        return decorated
 
 
 # ------------------Test------------------------
@@ -92,17 +90,30 @@ if __name__ == "__main__":
     from random import randrange
     from time import sleep
 
+    # Khởi chạy một ThreadPool với 8 công nhân(Worker)
+    # giao cho 8 công nhân đó 16 nhiệm vụ, các công nhân
+    # nhận nhiệm vụ theo cơ chế hàng đợi(FIFO). chương trình
+    # sẽ đợi cho đến khi tất cả các nhiệm vụ được hoàn thành.
+    pool = ThreadPool(num_workers=8)
+
 
     # Chức năng được thực hiện trong một chủ đề
-    def wait_delay(args=()):
-        print("(%d)id sleeping for (%d)sec" % (args[0], args[1]))
-        sleep(args[1])
+    def wait_delay(id_w, time):
+        print("(%d)id sleeping for (%d)sec" % (id_w, time))
+        sleep(time)
 
 
-    @thread
-    def wait_delay2(d):
-        print("wait_delay2 sleeping for (%d)sec" % d)
-        sleep(d)
+    @pool.thread
+    def wait_delay2(time):
+        print("wait_delay2 sleeping for (%d)sec" % time)
+        sleep(time)
+
+
+    @pool.thread
+    def func_error2(time):
+        print("func_error2 sleeping for (%d)sec" % time)
+        sleep(time)
+        raise Exception("error2 in thread")
 
 
     def func_error():
@@ -112,12 +123,8 @@ if __name__ == "__main__":
     # gọi hàm đã chuyển thành thread trương chình không
     # chờ xử lý xong mà vẫn sẽ đi tiếp
     wait_delay2(10)
-
-    # Khởi chạy một ThreadPool với 8 công nhân(Worker)
-    # giao cho 8 công nhân đó 16 nhiệm vụ, các công nhân
-    # nhận nhiệm vụ theo cơ chế hàng đợi(FIFO). chương trình
-    # sẽ đợi cho đến khi tất cả các nhiệm vụ được hoàn thành.
-    pool = ThreadPool(num_workers=8)
+    # gọi hàm có lỗi
+    func_error2(10)
 
     # Tạo sự chậm trễ ngẫu nhiên cho 15 nhiệm vụ.
     # một nhiệm vụ bao gồm mã và thời gian hoàn thành.
@@ -128,7 +135,7 @@ if __name__ == "__main__":
     # các công việc đơn lẻ.
     pool.map(wait_delay, delays)
     # thêm một nhiệm vụ đơn lẻ
-    pool.add_task(wait_delay, (16, 8))
+    pool.add_task(wait_delay, 16, 8)
 
     pool.add_task(func_error)
     # đợi cho đến khi tất cả nhiệm vụ được hoàn thành
