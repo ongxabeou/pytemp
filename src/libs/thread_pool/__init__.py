@@ -27,14 +27,14 @@ class ThreadPool:
     """ Pool của Thread tiêu thụ nhiệm vụ từ một hàng đợi """
 
     def __init__(self, num_workers, logger=None):
-        self.tasks = Queue(num_workers)
-        self.results = {}
+        self._tasks = Queue(num_workers)
+        self._results = {}
         for _ in range(num_workers):
-            self.Worker(self.tasks, logger, self.results)
+            self.Worker(self._tasks, logger, self._results)
 
     def add_task(self, func, *args, **kargs):
         """ Thêm một tác vụ vào hàng đợi """
-        self.tasks.put((func, args, kargs))
+        self._tasks.put((func, args, kargs))
         return self.Worker.get_function_id(func, args, kargs)
 
     def map(self, func, args_list):
@@ -46,7 +46,10 @@ class ThreadPool:
 
     def wait_all_tasks_done(self):
         """ Chờ hoàn thành tất cả các nhiệm vụ trong hàng đợi """
-        self.tasks.join()
+        self._tasks.join()
+        res = self._results
+        self._results = {}
+        return res
 
     def thread(self, f):
         """ chuyển hàm được gọi trở thành Thread để chạy ngầm """
@@ -56,9 +59,6 @@ class ThreadPool:
             return self.add_task(f, *args, **kargs)
 
         return decorated
-
-    def clear(self):
-        self.results.clear()
 
     class Worker(Thread):
         """ Thread thực hiện nhiệm vụ từ một hàng đợi nhiệm vụ nhất định """
@@ -167,7 +167,7 @@ if __name__ == "__main__":
 
     pool.add_task(func_error)
     # đợi cho đến khi tất cả nhiệm vụ được hoàn thành
-    pool.wait_all_tasks_done()
+    results = pool.wait_all_tasks_done()
     # kiểm tra kết quả
     print(func_ids)
-    print(pool.results[func_id])
+    print(results[func_id])
