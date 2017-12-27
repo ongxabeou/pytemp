@@ -787,6 +787,46 @@ class Email(Validator):
         return self.compiled.match(value)
 
 
+class Password(Validator):
+    """
+    Use to specify that the
+    value of the key being
+    validated must match the
+    pattern provided to the
+    validator.
+    password requires:
+        - contains at least 8 characters,
+        - contains least 1 number,
+        - contains least one alphabet 1 (a-z)
+        - contain at least 1 capital letter (A-Z),
+        - contains only 0-9a-zA-Z
+    # Example:
+        validations = {
+            "field": [Pattern('(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,}$/)')]
+        }
+        passes = {"password": "Nha123@123"}
+        fails  = {"field": "lytuananh2003.gmail"}
+
+    """
+
+    def __init__(self):
+        pattern = r"(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,}$/)"
+        self.err_message = "Invalid new password, password needed:contains at least 8 characters," \
+                           "contains at least one number,Contains at least 1 lowercase letter (a-z), " \
+                           "contain at least 1 capital letter (A-Z),contains only 0-9a-zA-Z. pattern: %s"
+        self.not_message = "Invalid new password, password not needed:contains at least 8 characters," \
+                           "contains at least one number,Contains at least 1 lowercase letter (a-z), " \
+                           "contain at least 1 capital letter (A-Z),contains only 0-9a-zA-Z. pattern: %s"
+        self.compiled = re.compile(pattern)
+
+        if self.set_lang_message('password'):
+            self.err_message %= pattern
+            self.not_message %= pattern
+
+    def __call__(self, value):
+        return self.compiled.match(value)
+
+
 class DateTime(Validator):
     """
     Use to specify that the
@@ -861,7 +901,8 @@ if __name__ == '__main__':
         "foo": [Required, Equals(123)],
         "bar": [Required, Truthy()],
         "baz": [In(["spam", "eggs", "bacon"])],
-        "qux": [Not(Range(1, 100))]  # by default, Range is inclusive
+        "qux": [Not(Range(1, 100))],  # by default, Range is inclusive
+        "pass": [Password()]
     }
 
     a_pass = {
@@ -870,7 +911,8 @@ if __name__ == '__main__':
         "title": "Buy groceries",
         "time": "9717-05-14 23:25:00",
         "smtp_email": "anhlt@fpt.vn",
-        "baz": "spam"
+        "baz": "spam",
+        "pass": "aA123@123",
     }
 
     val = HttpValidator(__rules)
@@ -883,7 +925,8 @@ if __name__ == '__main__':
         "title": "Buy groceries",
         "time": "2017-05 23:25:00",
         "smtp_email": "anhlt.fpt.vn",
-        "baz": "span"
+        "baz": "span",
+        "pass": "aA123",
     }
 
     v = val.validate_object(a_false)

@@ -59,5 +59,9 @@
   "unicode": {
     "err_message": "must be unicode value",
     "not_message": "must be not unicode value"
+  },
+  "password": {
+    "err_message": "Invalid new password, password needed:contains at least 8 characters,contains at least one number,Contains at least 1 lowercase letter (a-z), contain at least 1 capital letter (A-Z),contains only 0-9a-zA-Z. pattern: %s",
+    "not_message": "Invalid new password, password not needed:contains at least 8 characters,contains at least one number,Contains at least 1 lowercase letter (a-z), contain at least 1 capital letter (A-Z),contains only 0-9a-zA-Z. pattern: %s"
   }
 }
