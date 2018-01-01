@@ -810,7 +810,7 @@ class Password(Validator):
     """
 
     def __init__(self):
-        pattern = r"(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,}$/)"
+        pattern = r"(^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,}$)"
         self.err_message = "Invalid new password, password needed:contains at least 8 characters," \
                            "contains at least one number,Contains at least 1 lowercase letter (a-z), " \
                            "contain at least 1 capital letter (A-Z),contains only 0-9a-zA-Z. pattern: %s"
