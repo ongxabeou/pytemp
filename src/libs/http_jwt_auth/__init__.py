@@ -18,7 +18,7 @@ class TYPICALLY:
 
 class HttpJwtAuth(object):
     def __init__(self, scheme=None, realm=None):
-        self.scheme = scheme or 'Basic'
+        self.scheme = [scheme] or [TYPICALLY.BASIC.lower(), TYPICALLY.DIGEST.lower()]
         self.realm = realm or "Authentication Required"
         self.get_token_callback = None
         self.auth_error_callback = None
@@ -80,7 +80,7 @@ class HttpJwtAuth(object):
             # nếu kiểu auth không khớp, chúng ta hành động như thể không có auth
             # này là tốt hơn so với thất bại trực tiếp, vì nó cho phép callback
             # để xử lý các trường hợp đặc biệt, như hỗ trợ nhiều kiểu auth
-            if auth is not None and auth.type.lower() != self.scheme.lower():
+            if auth is not None and auth.type.lower() in self.scheme:
                 auth = None
 
             # Flask thường giải quyết các yêu cầu của OPTIONS riêng, nhưng trong
