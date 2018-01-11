@@ -18,7 +18,7 @@ class TYPICALLY:
 
 class HttpJwtAuth(object):
     def __init__(self, scheme=None, realm=None):
-        self.scheme = [scheme] or [TYPICALLY.BASIC.lower(), TYPICALLY.DIGEST.lower()]
+        self.scheme = [scheme] or [TYPICALLY.BASIC.lower(), TYPICALLY.DIGEST.lower(), TYPICALLY.BEARER.lower()]
         self.realm = realm or "Authentication Required"
         self.get_token_callback = None
         self.auth_error_callback = None
@@ -71,8 +71,8 @@ class HttpJwtAuth(object):
                 # bằng tay
                 try:
                     auth_type, token = request.headers['Authorization'].split(None, 1)
-                    auth_type = TYPICALLY.DIGEST if auth_type == TYPICALLY.BEARER else auth_type
-                    auth = Authorization(auth_type, {'token': token})
+                    local_auth_type = TYPICALLY.DIGEST if auth_type == TYPICALLY.BEARER else auth_type
+                    auth = Authorization(local_auth_type, {'token': token})
                 except ValueError:
                     # Authorization header là rỗng hoặc không có mã thông báo
                     pass

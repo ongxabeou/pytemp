@@ -84,6 +84,8 @@ def internal_server_error(e=None):
 @auth.get_token
 def get_local_token(token):
     try:
+        # hàm lấy token để kiểm tra với token đầu vào của HttpJwtAuth, nếu
+        # không dùng hàm này để check thì trả về luôn token của tham số đầu vào
         if not token:
             return None
         print('%s request authenticated' % token)
@@ -95,7 +97,7 @@ def get_local_token(token):
 @auth.is_permitted
 def is_permitted(typically, jwt_token, method):
     if typically == TYPICALLY.DIGEST:
-        # nếu type của Authorization là Bearer hoặc Digest
+        # nếu type của Authorization là Digest
         # hệ thống tự động chuyển sang digest đây là trường
         # phải check theo thuật toán JWT.
         return False
@@ -109,7 +111,11 @@ def is_permitted(typically, jwt_token, method):
 
         if admin_token == jwt_token:
             return method in list(bot_conf.admin_permitted[PERMITTED_STRUCTURE.METHODS])
-
+    elif typically == TYPICALLY.BEARER:
+        # nếu type của Authorization là Bearer
+        # hệ thống tự động chuyển sang Bearer đây là trường
+        # phải check theo thuật toán JWT.
+        return False
     return False
 
 
