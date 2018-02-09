@@ -6,15 +6,20 @@
     Date created: 2017/04/28
 """
 import datetime
-import hashlib
+# import hashlib
 from functools import wraps
+
+import sys
+from traceback import TracebackException
 
 from flask import request
 
 from src.common import SECTION, LOGGING_MODE, get_request_id
 from src.common.lang_config import LangConfig, LANG, LANG_STRUCTURE, LANG_VI, LANG_EN
 from src.common.system_config import SystemConfig
-from src.libs.thread_pool import ThreadPool
+
+
+# from src.libs.thread_pool import ThreadPool
 
 
 class BaseMoError(Exception):
@@ -29,7 +34,7 @@ class BaseMoError(Exception):
             if len(array) > 0:
                 array[0].encode('utf-8')
             self.params = array
-        except:
+        except RuntimeError:
             self.params = array[1:]
 
         if (param is None) or (param and param not in (LANG_VI, LANG_EN)):
@@ -123,6 +128,15 @@ class BaseMoError(Exception):
             LANG_STRUCTURE.MESSAGE: message
         }
 
+    @staticmethod
+    def get_track_back(limit=2, chain=True):
+        res = ""
+        _, value, tb = sys.exc_info()
+        for line in TracebackException(
+                type(value), value, tb, limit=limit).format(chain=chain):
+            res = res + line + "\n"
+        return res
+
     def get_class_name(self):
         return self.__class__.__name__
 
@@ -154,8 +168,8 @@ if __name__ == '__main__':
             try:
                 print('ok 2')
                 return f(*args, **kwargs)
-            except BaseMoError as e:
-                print('error 2 %s' % e)
+            except BaseMoError as be:
+                print('error 2 %s' % be)
 
         return decorated
 
@@ -166,8 +180,8 @@ if __name__ == '__main__':
             try:
                 print('ok 1')
                 return f(*args, **kwargs)
-            except BaseMoError as e:
-                print('error 1 %s' % e.get_message())
+            except BaseMoError as be:
+                print('error 1 %s' % be.get_message())
 
         return decorated
 
