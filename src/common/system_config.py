@@ -35,8 +35,8 @@ class SystemConfig:
                 local_dic[option] = self.config.get(section, option)
                 if local_dic[option] == -1:
                     self.logger.info("skip: %s" % option)
-            except Exception as e:
-                self.logger.error("get section of SystemConfig %s option %s have error:%s!" % (section, option, e))
+            except Exception as ex:
+                self.logger.exception("get section of SystemConfig %s option %s have error:%s!" % (section, option, ex))
                 local_dic[option] = None
         self._sections[section] = local_dic
         return local_dic
@@ -48,12 +48,12 @@ if __name__ == '__main__':
     __sys_conf = SystemConfig()
 
 
-    def ___cu_chuoi():
+    def ___cu_dump():
         raise KeyError('Cộng hòa')
 
 
     def ___man():
-        ___cu_chuoi()
+        ___cu_dump()
 
 
     try:
