@@ -38,9 +38,12 @@ def get_param_exception(errors):
 
 
 def build_response_message(data=None):
-    exc = BaseMoError(LANG.MESSAGE_SUCCESS)
-    message = exc.get_message()
-    return data or message
+    if data:
+        log_mod = sys_conf.get_section_map(SECTION.LOGGING_MODE)
+        if int(log_mod[LOGGING_MODE.LOG_FOR_REQUEST_SUCCESS]) == 1:
+            sys_conf.logger.debug('response: %s' % data)
+        return data
+    return BaseMoError(LANG.MESSAGE_SUCCESS).get_message()
 
 
 @app.errorhandler(404)
