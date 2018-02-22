@@ -101,7 +101,7 @@ class BaseMoError(Exception):
                         method=request.method,
                         url=request.url,
                         headers='\n'.join('{}: {}'.format(k, v) for k, v in request.headers.items()),
-                        body=request.data
+                        body=str(request.data, 'utf-8')
                     ))
         except Exception as ex:
             print("my_except/BaseMoError._get_message", ex)
