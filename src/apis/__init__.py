@@ -40,9 +40,7 @@ def get_param_exception(errors):
 def build_response_message(data=None):
     exc = BaseMoError(LANG.MESSAGE_SUCCESS)
     message = exc.get_message()
-    if data is None:
-        return message
-    return data
+    return data or message
 
 
 @app.errorhandler(404)
