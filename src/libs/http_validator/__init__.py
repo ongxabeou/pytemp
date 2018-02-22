@@ -28,7 +28,8 @@ __version__ = "1.2.5"
 RESOURCE_OF_HTTP_VALIDATE = None
 try:
     RESOURCE_OF_HTTP_VALIDATE, _ = os.path.split(os.path.abspath(__file__))
-except:
+except Exception as ex:
+    print(ex)
     pass
 
 
@@ -62,7 +63,8 @@ def _get_lang():
         param = request.args.get('lang')
         if param and param not in ('vi', 'en'):
             param = 'en'
-    except:
+    except Exception as ex:
+        print(ex)
         pass
 
     return __lang_dict_en if param == 'en' else __lang_dict_vi
@@ -143,8 +145,8 @@ class In(Validator):
             self.err_message %= collection
             self.not_message %= collection
 
-    def __call__(self, value):
-        return value in self.collection
+    def __call__(self, a_value):
+        return a_value in self.collection
 
 
 class Not(Validator):
@@ -164,8 +166,8 @@ class Not(Validator):
             self.err_message = getattr(validator, "not_message", lang_dict['validator']["not_message"])
             self.not_message = getattr(validator, "err_message", lang_dict['validator']["err_message"])
 
-    def __call__(self, value):
-        return not self.validator(value)
+    def __call__(self, a_value):
+        return not self.validator(a_value)
 
 
 class Range(Validator):
@@ -196,11 +198,11 @@ class Range(Validator):
             self.err_message %= (start, end)
             self.not_message %= (start, end)
 
-    def __call__(self, value):
+    def __call__(self, a_value):
         if self.inclusive:
-            return self.start <= value <= self.end
+            return self.start <= a_value <= self.end
         else:
-            return self.start < value < self.end
+            return self.start < a_value < self.end
 
 
 class Equals(Validator):
@@ -228,8 +230,8 @@ class Equals(Validator):
             self.err_message %= obj
             self.not_message %= obj
 
-    def __call__(self, value):
-        return value == self.obj
+    def __call__(self, a_value):
+        return a_value == self.obj
 
 
 class Blank(Validator):
@@ -256,8 +258,8 @@ class Blank(Validator):
         self.not_message = "must not be an empty string"
         self.set_lang_message('blank')
 
-    def __call__(self, value):
-        return value == ""
+    def __call__(self, a_value):
+        return a_value == ""
 
 
 class Truthy(Validator):
@@ -283,8 +285,8 @@ class Truthy(Validator):
         self.not_message = "must be False-equivalent value"
         self.set_lang_message('truthy')
 
-    def __call__(self, value):
-        if value:
+    def __call__(self, a_value):
+        if a_value:
             return True
         else:
             return False
@@ -311,7 +313,7 @@ def Required(field, dictionary):
 
     """
 
-    return (field in dictionary)
+    return field in dictionary
 
 
 class InstanceOf(Validator):
@@ -339,8 +341,8 @@ class InstanceOf(Validator):
             self.err_message %= base_class.__name__
             self.not_message %= base_class.__name__
 
-    def __call__(self, value):
-        return isinstance(value, self.base_class)
+    def __call__(self, a_value):
+        return isinstance(a_value, self.base_class)
 
 
 class SubclassOf(Validator):
@@ -397,8 +399,8 @@ class Pattern(Validator):
             self.err_message %= pattern
             self.not_message %= pattern
 
-    def __call__(self, value):
-        return self.compiled.match(value)
+    def __call__(self, a_value):
+        return self.compiled.match(a_value)
 
 
 class Then(Validator):
@@ -446,10 +448,10 @@ class If(Validator):
         self.validator = validator
         self.then_clause = then_clause
 
-    def __call__(self, value, dictionary):
+    def __call__(self, a_value, dictionary):
         conditional = False
         dependent = None
-        if self.validator(value):
+        if self.validator(a_value):
             conditional = True
             dependent = self.then_clause(dictionary)
         return conditional, dependent
@@ -504,11 +506,11 @@ class Length(Validator):
             self.err_message = self.err_messages["maximum"].format(maximum)
             self.not_message = self.err_messages["minimum"].format(maximum + 1)
 
-    def __call__(self, value):
+    def __call__(self, a_value):
         if self.maximum:
-            return self.minimum <= len(value) <= self.maximum
+            return self.minimum <= len(a_value) <= self.maximum
         else:
-            return self.minimum <= len(value)
+            return self.minimum <= len(a_value)
 
 
 class Contains(Validator):
@@ -564,10 +566,10 @@ class Each(Validator):
         # use case
         if isinstance(self.validations, (list, tuple, set)):
             for item in container:
-                for v in self.validations:
-                    valid = v(item)
+                for valid in self.validations:
+                    valid = valid(item)
                     if not valid:
-                        errors.append("all values " + v.err_message)
+                        errors.append("all values " + valid.err_message)
 
         # handle the somewhat messier list of dicts case
         if isinstance(self.validations, dict):
@@ -601,29 +603,29 @@ def validate(validation, dictionary):
     """
 
     errors = defaultdict(list)
-    for key in validation:
-        if isinstance(validation[key], (list, tuple)):
-            if Required in validation[key]:
-                if not Required(key, dictionary):
-                    errors[key] = "must be present"
+    for a_key in validation:
+        if isinstance(validation[a_key], (list, tuple)):
+            if Required in validation[a_key]:
+                if not Required(a_key, dictionary):
+                    errors[a_key] = "must be present"
                     continue
-            _validate_list_helper(validation, dictionary, key, errors)
+            _validate_list_helper(validation, dictionary, a_key, errors)
         else:
-            v = validation[key]
-            if v == Required:
-                if not Required(key, dictionary):
-                    errors[key] = "must be present"
+            valid = validation[a_key]
+            if valid == Required:
+                if not Required(a_key, dictionary):
+                    errors[a_key] = "must be present"
             else:
-                _validate_and_store_errs(v, dictionary, key, errors)
+                _validate_and_store_errs(valid, dictionary, a_key, errors)
     if len(errors) > 0:
-        # `errors` gets downgraded from defaultdict to dict
+        # `errors` gets downgraded from default dict to dict
         # because it makes for prettier output
         return ValidationResult(valid=False, errors=dict(errors))
     else:
         return ValidationResult(valid=True, errors={})
 
 
-def _validate_and_store_errs(validator, dictionary, key, errors):
+def _validate_and_store_errs(validator, dictionary, a_key, errors):
     # Validations shouldn't throw exceptions because of
     # type mismatches and the like. If the rule is 'Length(5)' and
     # the value in the field is 5, that should be a validation failure,
@@ -632,8 +634,9 @@ def _validate_and_store_errs(validator, dictionary, key, errors):
     # there could be actual problems with a validator, but we're just going
     # to have to rely on tests preventing broken things.
     try:
-        valid = validator(dictionary[key])
-    except Exception:
+        valid = validator(dictionary[a_key])
+    except Exception as ex:
+        print("http_validator/_validate_and_store_errs", ex)
         # Since we caught an exception while trying to validate,
         # treat it as a failure and return the normal error message
         # for that validator.
@@ -641,45 +644,45 @@ def _validate_and_store_errs(validator, dictionary, key, errors):
     if isinstance(valid, tuple):
         valid, errs = valid
         if errs and isinstance(errs, list):
-            errors[key] += errs
+            errors[a_key] += errs
         elif errs:
-            errors[key].append(errs)
+            errors[a_key].append(errs)
     elif not valid:
         # set a default error message for things like lambdas
-        # and other callables that won't have an err_message set.
+        # and other callable that won't have an err_message set.
         msg = getattr(validator, "err_message", "failed validation")
-        errors[key].append(msg)
+        errors[a_key].append(msg)
 
 
-def _validate_list_helper(validation, dictionary, key, errors):
-    for v in validation[key]:
+def _validate_list_helper(validation, dictionary, a_key, errors):
+    for valid in validation[a_key]:
         # don't break on optional keys
-        if key in dictionary:
+        if a_key in dictionary:
             # Ok, need to deal with nested
             # validations.
-            if isinstance(v, dict):
-                _, nested_errors = validate(v, dictionary[key])
+            if isinstance(valid, dict):
+                _, nested_errors = validate(valid, dictionary[a_key])
                 if nested_errors:
-                    errors[key].append(nested_errors)
+                    errors[a_key].append(nested_errors)
                 continue
             # Done with that, on to the actual
             # validating bit.
             # Skip Required, since it was already
             # handled before this point.
-            if not v == Required:
+            if not valid == Required:
                 # special handling for the
                 # If(Then()) form
-                if isinstance(v, If):
-                    conditional, dependent = v(dictionary[key], dictionary)
+                if isinstance(valid, If):
+                    conditional, dependent = valid(dictionary[a_key], dictionary)
                     # if the If() condition passed and there were errors
                     # in the second set of rules, then add them to the
                     # list of errors for the key with the condtional
                     # as a nested dictionary of errors.
                     if conditional and dependent[1]:
-                        errors[key].append(dependent[1])
+                        errors[a_key].append(dependent[1])
                 # handling for normal validators
                 else:
-                    _validate_and_store_errs(v, dictionary, key, errors)
+                    _validate_and_store_errs(valid, dictionary, a_key, errors)
 
 
 """ Author: Ly Tuan Anh
@@ -710,9 +713,9 @@ class HttpValidator(object):
         if field_name not in self.rules:
             return ValidationResult(valid=False, errors={field_name: 'field have not in Rules'})
 
-        r = {field_name: self.rules[field_name]}
-        v = {field_name: obj[field_name]}
-        return validate(r, v)
+        rul = {field_name: self.rules[field_name]}
+        dic = {field_name: obj[field_name]}
+        return validate(rul, dic)
 
     def validate(self, f):
         @wraps(f)
@@ -753,8 +756,8 @@ class PhoneNumber(Validator):
 
         self.compiled = re.compile(pattern)
 
-    def __call__(self, value):
-        return self.compiled.match(value)
+    def __call__(self, a_value):
+        return self.compiled.match(a_value)
 
 
 class Email(Validator):
@@ -783,8 +786,8 @@ class Email(Validator):
         if self.set_lang_message('email'):
             self.not_message %= pattern
 
-    def __call__(self, value):
-        return self.compiled.match(value)
+    def __call__(self, a_value):
+        return self.compiled.match(a_value)
 
 
 class Password(Validator):
@@ -823,8 +826,8 @@ class Password(Validator):
             self.err_message %= pattern
             self.not_message %= pattern
 
-    def __call__(self, value):
-        return self.compiled.match(value)
+    def __call__(self, a_value):
+        return self.compiled.match(a_value)
 
 
 class DateTime(Validator):
@@ -853,8 +856,8 @@ class DateTime(Validator):
         if self.set_lang_message('date_time'):
             self.not_message %= pattern
 
-    def __call__(self, value):
-        return self.compiled.match(value)
+    def __call__(self, a_value):
+        return self.compiled.match(a_value)
 
 
 class Unicode(Validator):
@@ -880,9 +883,9 @@ class Unicode(Validator):
         self.not_message = "must be not unicode value"
         self.set_lang_message('unicode')
 
-    def __call__(self, value):
+    def __call__(self, a_value):
         try:
-            value.encode('utf-8')
+            a_value.encode('utf-8')
             # field is unicode
             return True
         except TypeError:
@@ -930,10 +933,10 @@ if __name__ == '__main__':
     }
 
     v = val.validate_object(a_false)
-    vdic = {}
+    v_dic = {}
     for key, value in list(v[1].items()):
-        vdic[key] = value[0]
-    print(vdic)
+        v_dic[key] = value[0]
+    print(v_dic)
     v = val.validate_field(a_false, 'time')
 
     print(v[0])

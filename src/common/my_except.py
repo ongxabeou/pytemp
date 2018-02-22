@@ -34,7 +34,8 @@ class BaseMoError(Exception):
             if len(array) > 0:
                 array[0].encode('utf-8')
             self.params = array
-        except RuntimeError:
+        except Exception as ex:
+            print("my_except/BaseMoError.__init__", ex)
             self.params = array[1:]
 
         if (param is None) or (param and param not in (LANG_VI, LANG_EN)):
@@ -47,7 +48,8 @@ class BaseMoError(Exception):
     def get_message(self):
         try:
             return self._get_message()
-        except:
+        except Exception as ex:
+            print("my_except/BaseMoError.get_message", ex)
             self.sys_conf.logger.exception('%s :: %s exception occurred' %
                                            (str(datetime.datetime.now()), self.get_class_name()))
             code = self.lang[LANG.INTERNAL_SERVER_ERROR][LANG_STRUCTURE.CODE]
@@ -101,7 +103,8 @@ class BaseMoError(Exception):
                         headers='\n'.join('{}: {}'.format(k, v) for k, v in request.headers.items()),
                         body=request.data
                     ))
-        except:
+        except Exception as ex:
+            print("my_except/BaseMoError._get_message", ex)
             pass
 
         if mod2 or mod3:
