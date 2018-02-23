@@ -126,12 +126,10 @@ if __name__ == '__main__':
     os.remove('test.txt')
     print('file ./test.txt deleted')
 
-    buck.get_folders()
-    buck.add_folder('test')
-    buck.get_folders()
+    buck.add_label('test', '123456')
+    buck.get_labels()
     obj = buck.create_object('label/create_service.json')
     obj.upload_file('../../../resources/configs/google_service_account.json')
     print(obj.link, obj.blob.self_link)
     # obj.delete()
-    buck.get_folders()
 
