@@ -107,7 +107,7 @@ class Bucket:
         links = []
         for file_name in file_names:
             head, tail = os.path.split(file_name)
-            new_obj = self.create_object(folder + '/' + head)
+            new_obj = self.create_object(os.path.join(folder, head))
             links.append(new_obj.upload(file_name, make_public))
             print('upload file {file} to folder {folder} on {bucket}'.format(file=head, folder=folder,
                                                                              bucket=self.name))
@@ -124,7 +124,7 @@ class Bucket:
         print('download files of folder {folder} on {bucket}'.format(folder=folder, bucket=self.name))
         for obj in objects:
             head, tail = os.path.split(obj.name)
-            file_name = local_folder_path + head
+            file_name = os.path.join(local_folder_path, head)
             obj.download(file_name)
             file_names.append(file_name)
         print('have downloaded {len} files'.format(len=len(file_names)))
