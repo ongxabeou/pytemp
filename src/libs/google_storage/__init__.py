@@ -258,6 +258,22 @@ class Object:
         print('File {local_path} uploaded to Object {name}.'.format(local_path=local_path, name=self.name))
         return self.link
 
+    def upload_from_string(self, data, content_type='text/plain', make_public=True):
+        """
+        upload một file trên google storage
+        :param data:
+        :param content_type: Optional type of content being uploaded. Defaults to 'text/plain'.
+        :param make_public: set Object thành public
+        :return: trả về public url của Object
+        """
+        if self.resource_model:
+            self.resource_model.add_resource(self.link)
+        self.blob.upload_from_string(data=data, content_type=content_type)
+        if make_public:
+            self.blob.make_public()
+        print('File {content_type} uploaded to Object {name}.'.format(content_type=content_type, name=self.name))
+        return self.link
+
     def delete(self):
         """
         xoá object khỏi google storage
@@ -278,6 +294,15 @@ class Object:
         self.blob.download_to_filename(local_path)
         print('Object {name} downloaded to {local_path}.'.format(name=self.name, local_path=local_path))
         return os.path.exists(local_path)
+
+    def download_as_string(self):
+        """
+        tải file từ google store và trả vè dữ liệu dạng string
+        :return: trả về dữ liệu dạng string
+        """
+        data = self.blob.download_as_string()
+        print('Object {name} downloaded as string.'.format(name=self.name))
+        return data
 
 
 # # --------------------------- TEST ---------------------------
