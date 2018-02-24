@@ -211,7 +211,7 @@ class BaseResourceModel:
     def delete_resource_by_link(self, public_url):
         """
         tìm kiếm dữ liệu theo public url và xoá record trong database sau khi đã xoá được file trên google storage
-        :param public_url:
+        :param public_url: đường link google storage của file resource
         """
         pass
 
@@ -219,7 +219,7 @@ class BaseResourceModel:
     def add_resource(self, public_url):
         """
         thêm thông tin file đã upload lên google storage vào database
-        :param public_url:
+        :param public_url: đường link google storage của file resource
         """
         pass
 
