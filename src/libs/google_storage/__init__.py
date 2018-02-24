@@ -32,6 +32,8 @@
         # https://console.cloud.google.com/storage/browser/[bucket-id]/test/first_file_test.png
 """
 import os
+from abc import abstractmethod
+
 from google.cloud import storage
 from google.cloud.storage import Blob
 
@@ -203,6 +205,25 @@ class Bucket:
         return name in self.bucket.labels
 
 
+class BaseResourceModel:
+    """lớp định nghĩa method cơ bản để lư thông tin vào DB sau khi update hoặc delete một file trên google storage."""
+    @abstractmethod
+    def delete_resource_by_link(self, public_url):
+        """
+        tìm kiếm dữ liệu theo public url và xoá record trong database sau khi đã xoá được file trên google storage
+        :param public_url:
+        """
+        pass
+
+    @abstractmethod
+    def add_resource(self, public_url):
+        """
+        thêm thông tin file đã upload lên google storage vào database
+        :param public_url:
+        """
+        pass
+
+
 class Object:
     def __init__(self, blob: Blob):
         """
@@ -220,6 +241,7 @@ class Object:
         self.blob = blob
         self.link = blob.public_url
         self.name = blob.name
+        self.resource_model: BaseResourceModel = None
 
     def upload(self, local_path, make_public=True):
         """
@@ -228,17 +250,21 @@ class Object:
         :param make_public: set Object thành public
         :return: trả về public url của Object
         """
+        if self.resource_model:
+            self.resource_model.add_resource(self.link)
         self.blob.upload_from_filename(filename=local_path)
-        print('File {local_path} uploaded to Object {name}.'.format(local_path=local_path, name=self.name))
         if make_public:
             self.blob.make_public()
-        return self.blob.public_url
+        print('File {local_path} uploaded to Object {name}.'.format(local_path=local_path, name=self.name))
+        return self.link
 
     def delete(self):
         """
         xoá object khỏi google storage
         :return: trả về thành công thất bại
         """
+        if self.resource_model:
+            self.resource_model.delete_resource_by_link(self.link)
         self.blob.delete()
         print('Object {} deleted.'.format(self.name))
         return self.blob.exists()
