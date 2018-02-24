@@ -263,6 +263,7 @@ class Object:
         upload một file trên google storage
         :param data:
         :param content_type: Optional type of content being uploaded. Defaults to 'text/plain'.
+                xem List of MIME types / Internet Media Types: https://www.freeformatter.com/mime-types-list.html
         :param make_public: set Object thành public
         :return: trả về public url của Object
         """
