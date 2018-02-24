@@ -111,6 +111,23 @@ class Bucket:
                                                                              bucket=self.name))
         return links
 
+    def download_files_of_folder(self, local_folder_path, folder=None):
+        """ update files list to folder on bucket.
+        :param local_folder_path: đường đãn đến thư mục tại ổ đĩa
+        :param folder: Optional. thư mục trên google storage
+        :return: trả về danh sách url public của google storage
+        """
+        objects = self.list_objects_with_prefix(folder)
+        file_names = []
+        print('download files of folder {folder} on {bucket}'.format(folder=folder, bucket=self.name))
+        for obj in objects:
+            head, tail = os.path.split(obj.name)
+            file_name = local_folder_path + head
+            obj.download(file_name)
+            file_names.append(file_name)
+        print('have downloaded {len} files'.format(len=len(file_names)))
+        return file_names
+
     def list_objects_with_prefix(self, prefix, delimiter=None):
         """Lists all the blobs in the bucket that begin with the prefix.
         This can be used to list all blobs in a "folder", e.g. "public/".
@@ -207,7 +224,7 @@ class Object:
     def upload(self, local_path, make_public=True):
         """
         upload một file trên google storage
-        :param local_path: đường dến lên local file
+        :param local_path: đường dẫn dến local file
         :param make_public: set Object thành public
         :return: trả về public url của Object
         """
@@ -244,14 +261,14 @@ if __name__ == '__main__':
     buck = client.get_bucket('nlp_model')
     objs = buck.list_objects_with_prefix('req')
     # Then do other things...
-    obj = buck.create_object(objs[0].blob.name)
-    obj.download('test.txt')
+    a_obj = buck.create_object(objs[0].name)
+    a_obj.download('test.txt')
     os.remove('test.txt')
     print('file ./test.txt deleted')
 
     buck.add_label('test', '123456')
     buck.get_labels_keys()
-    obj = buck.create_object('label/create_service.json')
-    obj.upload('../../../resources/configs/google_service_account.json')
-    print(obj.link, obj.blob.self_link)
+    a_obj = buck.create_object('label/create_service.json')
+    a_obj.upload('../../../resources/configs/google_service_account.json')
+    print(a_obj.link)
     # obj.delete()
