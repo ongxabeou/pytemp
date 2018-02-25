@@ -5,7 +5,8 @@
     mail: lytuananh2003@gmail.com
     Date created: 2018/02/22
 
-    GoogleStorage là đối tượng hỗ trợ lư trữ trên dịch vụ Google Storage. Nó cung cấp 3 khái niệm:
+    CloudStorage là đối tượng hỗ trợ lư trữ trên dịch vụ Google Storage(có thể dùng với cloud khác).
+    Nó cung cấp 3 khái niệm:
         Bucket: là một kho lưu trữ file. mối bucket cung cấp 2 khả năng lư trữ lưu trư Label và Object
         Label set: là một tập các label gắn với một Bucket và lưu trữ data theo cơ chế key-value
         Object: là các đối tượng lư trữ của Bucket bao gốm tên(name) Object đường dẫn trong name tự động
@@ -14,7 +15,7 @@
     UML:
                              ,--------------------.
     ,--------------------.   |Bucket              |    ,---------------------.
-    |GoogleStorage       |   |--------------------|    |Object               |
+    |CloudStorage        |   |--------------------|    |Object               |
     |--------------------|   |--------------------|    |---------------------|
     |--------------------|   |+create_object(name)|    |---------------------|
     |+create_bucket(name)|-->|+patch_labels()     |--->|+update(local_path)  |
@@ -43,7 +44,7 @@ from google.cloud import storage
 from google.cloud.storage import Blob
 
 
-class GoogleStorage:
+class CloudStorage:
     def __init__(self, service_account_file_path):
         """
         GoogleStorage là đối tượng hỗ trợ lư trữ trên dịch vụ Google Storage.
@@ -384,7 +385,7 @@ class Object:
 
 # --------------------------- TEST ---------------------------
 if __name__ == '__main__':
-    client = GoogleStorage('../../../resources/configs/MicroDream-b7253957aa69.json')
+    client = CloudStorage('../../../resources/configs/MicroDream-b7253957aa69.json')
     # https://console.cloud.google.com/storage/browser/[bucket-id]/
     buck = client.get_bucket('nlp_model')
     objs = buck.list_objects_with_prefix('req')
