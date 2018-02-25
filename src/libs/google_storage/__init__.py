@@ -17,9 +17,9 @@
     |GoogleStorage       |   |--------------------|    |Object               |
     |--------------------|   |--------------------|    |---------------------|
     |--------------------|   |+create_object(name)|    |---------------------|
-    |+create_bucket(name)|-->|+add_label()        |--->|+update(local_path)  |
-    |+get_bucket(name)   |1.n|+get_label()        |1..n|+download(local_path)|
-    `--------------------'   |+remove_label()     |    `---------------------'
+    |+create_bucket(name)|-->|+patch_labels()     |--->|+update(local_path)  |
+    |+get_bucket(name)   |1.n|                    |1..n|+download(local_path)|
+    `--------------------'   |                    |    `---------------------'
                              `--------------------'
 
     Ví dụ:
@@ -31,9 +31,14 @@
         print(public_url)
         # https://console.cloud.google.com/storage/browser/[bucket-id]/test/first_file_test.png
 """
+import mimetypes
 import os
 from abc import abstractmethod
+from io import BytesIO
 
+import six
+import time
+from google import resumable_media
 from google.cloud import storage
 from google.cloud.storage import Blob
 
@@ -183,7 +188,39 @@ class BaseResourceModel:
         pass
 
 
+def convert_string_to_bytes(value, encoding='ascii'):
+    """Converts a string value to bytes, if necessary.
+
+    Unfortunately, ``six.b`` is insufficient for this task since in
+    Python2 it does not modify ``unicode`` objects.
+
+    :type value: str / bytes or unicode
+    :param value: The string/bytes value to be converted.
+
+    :type encoding: str
+    :param encoding: The encoding to use to convert unicode to bytes. Defaults
+                     to "ascii", which will not allow any characters from
+                     ordinals larger than 127. Other useful values are
+                     "latin-1", which which will only allows byte ordinals
+                     (up to 255) and "utf-8", which will encode any unicode
+                     that needs to be.
+
+    :rtype: str / bytes
+    :returns: The original value converted to bytes (if unicode) or as passed
+              in if it started out as bytes.
+    :raises TypeError: if the value could not be converted to bytes.
+    """
+    result = (value.encode(encoding)
+              if isinstance(value, six.text_type) else value)
+    if isinstance(result, six.binary_type):
+        return result
+    else:
+        raise TypeError('%r could not be converted to bytes' % (value,))
+
+
 class Object:
+    _DEFAULT_CONTENT_TYPE = u'application/octet-stream'
+
     def __init__(self, blob: Blob):
         """
         class Object hỗ trợ upload và download các file từ google storage
@@ -200,20 +237,79 @@ class Object:
         self.blob = blob
         self.link = blob.public_url
         self.name = blob.name
+        self.content_type = blob.content_type
         self.resource_model: BaseResourceModel = None
 
-    def upload(self, local_path, make_public=True):
+    def _get_content_type(self, content_type, filename=None):
+        """Determine the content type from the current object.
+
+        The return value will be determined in order of precedence:
+
+        - The value passed in to this method (if not :data:`None`)
+        - The value stored on the current blob
+        - The default value ('application/octet-stream')
+
+        :type content_type: str
+        :param content_type: (Optional) type of content.
+
+        :type filename: str
+        :param filename: (Optional) The name of the file where the content
+                         is stored.
+
+        :rtype: str
+        :returns: Type of content gathered from the object.
+        """
+        if content_type is None:
+            content_type = self.blob.content_type
+
+        if content_type is None and filename is not None:
+            content_type, _ = mimetypes.guess_type(filename)
+
+        if content_type is None:
+            content_type = self._DEFAULT_CONTENT_TYPE
+
+        return content_type
+
+    def upload_file(self, file_obj, rewind=False, size=None, content_type=None, num_retries=None, make_public=True):
         """
         upload một file trên google storage
+        :param file_obj: A file handle open for reading.
+        :param rewind: If True, seek to the beginning of the file handle before
+                       writing the file to Cloud Storage.
+        :param size: The number of bytes to be uploaded (which will be read
+                     from ``file_obj``). If not provided, the upload will be
+                     concluded once ``file_obj`` is exhausted.
+        :param content_type: Optional type of content being uploaded.
+        :param num_retries: Number of upload retries. (Deprecated: This
+                            argument will be removed in a future release.)
+        :param make_public: set Object to public
+        :return: trả về public url của Object
+        :raises: :class:`~google.cloud.exceptions.GoogleCloudError`
+                 if the upload response returns an error status.
+        """
+        if self.resource_model:
+            self.resource_model.add_resource(self.link)
+        self.blob.upload_from_file(file_obj=file_obj, rewind=rewind, size=size, content_type=content_type,
+                                   num_retries=num_retries)
+        if make_public:
+            self.blob.make_public()
+        # print('File uploaded to Object {name}.'.format(name=self.name))
+        return self.link
+
+    def upload(self, local_path, content_type=None, make_public=True):
+        """
+        upload một file trên google storage
+        :param content_type: Optional type of content being uploaded.
         :param local_path: đường dẫn dến local file
         :param make_public: set Object thành public
         :return: trả về public url của Object
         """
-        if self.resource_model:
-            self.resource_model.add_resource(self.link)
-        self.blob.upload_from_filename(filename=local_path)
-        if make_public:
-            self.blob.make_public()
+        content_type = self._get_content_type(content_type, filename=local_path)
+
+        with open(local_path, 'rb') as file_obj:
+            total_bytes = os.fstat(file_obj.fileno()).st_size
+            self.link = self.upload_file(file_obj=file_obj, content_type=content_type,
+                                         size=total_bytes, make_public=make_public)
         print('File {local_path} uploaded to Object {name}.'.format(local_path=local_path, name=self.name))
         return self.link
 
@@ -226,11 +322,10 @@ class Object:
         :param make_public: set Object thành public
         :return: trả về public url của Object
         """
-        if self.resource_model:
-            self.resource_model.add_resource(self.link)
-        self.blob.upload_from_string(data=data, content_type=content_type)
-        if make_public:
-            self.blob.make_public()
+        data = convert_string_to_bytes(data, encoding='utf-8')
+        string_buffer = BytesIO(data)
+        self.link = self.upload_file(file_obj=string_buffer, content_type=content_type,
+                                     size=len(data), make_public=make_public)
         print('File {content_type} uploaded to Object {name}.'.format(content_type=content_type, name=self.name))
         return self.link
 
@@ -245,27 +340,49 @@ class Object:
         print('Object {} deleted.'.format(self.name))
         return self.blob.exists()
 
+    def download_file(self, file_obj):
+        """
+        tải file từ google store và lưu xuống file stream đã tạo sẵn
+        :param file_obj: A file handle to which to write the object's data.
+        """
+        self.blob.download_to_file(file_obj)
+        # print('Object {name} downloaded.'.format(name=self.name))
+
     def download(self, local_path):
         """
         tải file từ google store và lưu xuống ổ đĩa theo local path
-        :param local_path:
+        :param local_path: A filename to be passed to ``open``.
+        :raises: :class:`google.cloud.exceptions.NotFound`
         :return: trả về thành công thất bại
         """
-        self.blob.download_to_filename(local_path)
-        print('Object {name} downloaded to {local_path}.'.format(name=self.name, local_path=local_path))
-        return os.path.exists(local_path)
+        try:
+            with open(local_path, 'wb') as file_obj:
+                self.download_file(file_obj)
+        except resumable_media.DataCorruption as exc:
+            # Delete the corrupt downloaded file.
+            os.remove(local_path)
+            raise exc
+
+        updated = self.blob.updated
+        if updated is not None:
+            mtime = time.mktime(updated.timetuple())
+            os.utime(file_obj.name, (mtime, mtime))
+
+        print('Object {name} downloaded to file {file}.'.format(name=self.name, file=local_path))
+        return updated is not None
 
     def download_as_string(self):
         """
         tải file từ google store và trả vè dữ liệu dạng string
         :return: trả về dữ liệu dạng string
         """
-        data = self.blob.download_as_string()
+        string_buffer = BytesIO()
+        self.download_file(string_buffer)
         print('Object {name} downloaded as string.'.format(name=self.name))
-        return data
+        return string_buffer.getvalue()
 
 
-# # --------------------------- TEST ---------------------------
+# --------------------------- TEST ---------------------------
 if __name__ == '__main__':
     client = GoogleStorage('../../../resources/configs/MicroDream-b7253957aa69.json')
     # https://console.cloud.google.com/storage/browser/[bucket-id]/
