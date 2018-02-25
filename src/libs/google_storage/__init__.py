@@ -86,6 +86,7 @@ class Bucket:
     def __init__(self, bucket: storage.Bucket):
         self.bucket = bucket
         self.name = bucket.name
+        self.labels = bucket.labels
 
     def create_object(self, name):
         """ update files list to folder on bucket.
@@ -148,65 +149,23 @@ class Bucket:
             :return: trả về danh sách Object đạt điều kiện
         """
         blobs = self.bucket.list_blobs(prefix=prefix, delimiter=delimiter)
-        result = list()
         print('Objects:')
         for blob in blobs:
-            result.append(Object(blob))
             print(blob.name)
-        return result
+        return [Object(b) for b in blobs]
 
-    def get_labels_keys(self):
-        """Prints out a bucket's labels.
+    def patch_labels(self):
+        """update for all label to a bucket.
         đây là bộ dictionary được add cùng với bucket của google storage hoạt động theo cơ chế key-value
-        :return: trả về danh sách keys của lable
         """
-        labels = self.bucket.labels
-        print('get label on {bucket}:{labels}'.format(bucket=self.name, labels=labels))
-        return labels.keys()
-
-    def get_label(self, name):
-        """Prints out a bucket's labels.
-        đây là bộ dictionary được add cùng với bucket của google storage hoạt động theo cơ chế key-value
-        :param name:
-        :return: trả về value của lable
-        """
-        labels = self.bucket.labels
-        print('get label on {bucket} is {key}:{value}.'.format(bucket=self.bucket.name, key=name, value=labels[name]))
-        return labels[name]
-
-    def add_label(self, name, value):
-        """Add a label to a bucket.
-        đây là bộ dictionary được add cùng với bucket của google storage hoạt động theo cơ chế key-value
-        :return: trả về thành công thất bại
-        :param name:
-        :param value:
-        """
-        labels = self.bucket.labels
-        labels[name] = value
-        self.bucket.labels = labels
+        self.bucket.labels = self.labels
         self.bucket.patch()
-
-        print('Updated label on {bucket} is {key}:{value}.'.format(bucket=self.name,
-                                                                   key=name, value=labels[name]))
-        return name in self.bucket.labels
-
-    def remove_label(self, name):
-        """Remove a label from a bucket.
-        đây là bộ dictionary được add cùng với bucket của google storage hoạt động theo cơ chế key-value
-        :return: trả về thành công thất bại
-        :param name:
-        """
-        labels = self.bucket.labels
-        if name in labels:
-            del labels[name]
-        self.bucket.labels = labels
-        self.bucket.patch()
-        print('Remove labels on {bucket} by {key}.'.format(bucket=self.name, key=name))
-        return name in self.bucket.labels
+        print('Updated label on {bucket}.'.format(bucket=self.name))
 
 
 class BaseResourceModel:
     """lớp định nghĩa method cơ bản để lư thông tin vào DB sau khi update hoặc delete một file trên google storage."""
+
     @abstractmethod
     def delete_resource_by_link(self, public_url):
         """
@@ -318,8 +277,9 @@ if __name__ == '__main__':
     os.remove('test.txt')
     print('file ./test.txt deleted')
 
-    buck.add_label('test', '123456')
-    buck.get_labels_keys()
+    buck.labels['test'] = '123456'
+    print(buck.labels.keys())
+    buck.patch_labels()
     a_obj = buck.create_object('label/create_service.json')
     a_obj.upload('../../../resources/configs/google_service_account.json')
     print(a_obj.link)
