@@ -382,6 +382,9 @@ class Object:
         print('Object {name} downloaded as string.'.format(name=self.name))
         return string_buffer.getvalue()
 
+    def exist(self):
+        return self.blob.exists()
+
 
 # --------------------------- TEST ---------------------------
 if __name__ == '__main__':
