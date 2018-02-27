@@ -13,15 +13,17 @@
         chuyển thành folđer và dữ liệu File
 
     UML:
-                             ,--------------------.
-    ,--------------------.   |Bucket              |    ,---------------------.
-    |CloudStorage        |   |--------------------|    |Object               |
-    |--------------------|   |--------------------|    |---------------------|
-    |--------------------|   |+create_object(name)|    |---------------------|
-    |+create_bucket(name)|-->|+patch_labels()     |--->|+update(local_path)  |
-    |+get_bucket(name)   |1.n|                    |1..n|+download(local_path)|
-    `--------------------'   |                    |    `---------------------'
-                             `--------------------'
+                                                      ,---------------------.
+                             ,--------------------.   |Object               |
+    ,--------------------.   |Bucket              |   |---------------------|
+    |CloudStorage        |   |--------------------|   |+name                |
+    |--------------------|   |+label              |   |+link                |
+    |+storage_client     |   |+name               |   |+content_type        |
+    |--------------------|---|--------------------|---|+resource_model      |
+    |+create_bucket(name)|1-n|+create_object(name)|1-n|---------------------|
+    |+get_bucket(name)   |   |+patch_labels()     |   |+update(local_path)  |
+    `--------------------'   `--------------------'   |+download(local_path)|
+                                                      `---------------------'
 
     Ví dụ:
         client = GoogleStorage('/resources/configs/credential.json')
@@ -383,6 +385,10 @@ class Object:
         return string_buffer.getvalue()
 
     def exist(self):
+        """
+        kiểm tra Object có tồn tại trên storage.
+        :return: nếu True object có tồn tại
+        """
         return self.blob.exists()
 
 
