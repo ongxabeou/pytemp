@@ -8,8 +8,8 @@
 import configparser
 import datetime
 import logging.config
-
-from src.common import DMAI_CONFIG_FILE_PATH, DMAI_LOG_CONFIG_FILE_PATH, DMAI_LOG_FILE_PATH
+import logging.handlers
+from src.common import DMAI_CONFIG_FILE_PATH, DMAI_LOG_CONFIG_FILE_PATH, DMAI_LOG_FILE_PATH, SECTION, LOGGING_MODE
 from src.libs.singleton import Singleton
 
 
@@ -22,7 +22,11 @@ class SystemConfig:
         self.config.read(DMAI_CONFIG_FILE_PATH, 'utf-8')
         logging.config.fileConfig(DMAI_LOG_CONFIG_FILE_PATH, None, disable_existing_loggers=False)
         self.logger = logging.getLogger('common.system_config.SystemConfig')
-        self.logger.addHandler(logging.FileHandler(DMAI_LOG_FILE_PATH, encoding='utf-8'))
+        max_bytes = int(self.get_section_map(SECTION.LOGGING_MODE)[LOGGING_MODE.FILE_MAX_BYTES])
+        backup_count = int(self.get_section_map(SECTION.LOGGING_MODE)[LOGGING_MODE.FILE_BACKUP_COUNT])
+        self.logger.addHandler(logging.handlers.RotatingFileHandler(filename=DMAI_LOG_FILE_PATH,
+                                                                    maxBytes=max_bytes,
+                                                                    backupCount=backup_count))
 
     def get_section_map(self, section):
         if section in self._sections:
