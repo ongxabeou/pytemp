@@ -407,7 +407,13 @@ if __name__ == '__main__':
     buck.labels['test'] = '123456'
     print(buck.labels.keys())
     buck.patch_labels()
+    from timeit import default_timer as timer
+
+    start = timer()
     a_obj = buck.create_object('label/create_service.json')
-    a_obj.upload('../../../resources/configs/google_service_account.json')
+    a_obj.upload_from_string("../../../resources/configs/google_service_account.json")
     print(a_obj.link)
+    end = timer()
+    print((end - start)*1000)
+
     # obj.delete()
