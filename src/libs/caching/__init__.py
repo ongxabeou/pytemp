@@ -4,15 +4,33 @@
     github nick: ongxabeou
     mail: lytuananh2003@gmail.com
     Date created: 2017/04/28
-"""
 
+    LRU viết tắt của từ least recently used. là thư viện hỗ trợ cache
+    lại các kết quả xử lý của nhưng lần sử dụng gần nhất.
+    LRU Cache sẽ lưu lại trên RAM hoặc Redis
+"""
+import configparser
 from collections import OrderedDict
 import time
 import threading
 import weakref
 
+import redis
 
-def lru_cache_function(max_size=1024, expiration=15 * 60):
+
+class STORE_TYPE:
+    LOCAL = 1
+    REDIS = 2
+
+
+CACHE_MAX_SIZE_DEFAULT = 1024000
+EXPIRATION_DEFAULT = 15 * 60
+
+
+def lru_cache_function(max_size=CACHE_MAX_SIZE_DEFAULT,
+                       expiration=EXPIRATION_DEFAULT,
+                       store_type=STORE_TYPE.LOCAL,
+                       config_file_name=None):
     """
     >>> @lru_cache_function(3, 1)
     ... def f(x):
@@ -26,8 +44,14 @@ def lru_cache_function(max_size=1024, expiration=15 * 60):
     """
 
     def wrapper(func):
-        return LRUCachedFunction(func, LRUCacheDict(max_size, expiration))
-
+        if store_type == STORE_TYPE.LOCAL:
+            return LRUCachedFunction(func, LRUCacheDict(max_size, expiration))
+        elif store_type == STORE_TYPE.REDIS:
+            if config_file_name is None:
+                raise ValueError('config_file_name must not be None if store_type is REDIS')
+            return LRUCachedFunction(func, RedisCacheDict(config_file_name, max_size, expiration))
+        else:
+            raise NotImplementedError('store_type=%s' % store_type)
     return wrapper
 
 
@@ -44,7 +68,7 @@ def _lock_decorator(func):
         else:
             return func(self, *args, **kwargs)
 
-    withlock.__name__ == func.__name__
+    # withlock.__name__ == func.__name__
     return withlock
 
 
@@ -79,11 +103,11 @@ class LRUCacheDict(object):
     is used.
     """
 
-    def __init__(self, max_size=1024, expiration=15 * 60, thread_clear=False, thread_clear_min_check=60,
+    def __init__(self, max_size=CACHE_MAX_SIZE_DEFAULT, expiration=EXPIRATION_DEFAULT,
+                 thread_clear=False,
                  concurrent=False):
         self.max_size = max_size
         self.expiration = expiration
-
         self.__values = {}
         self.__expire_times = OrderedDict()
         self.__access_times = OrderedDict()
@@ -99,11 +123,10 @@ class LRUCacheDict(object):
         daemon = True
 
         def __init__(self, cache, peek_duration=60):
-            me = self
-
-            def kill_self(o):
-                me
-
+            # me = self
+            #
+            # def kill_self(o):
+            #     me
             self.ref = weakref.ref(cache)
             self.peek_duration = peek_duration
             super(LRUCacheDict.EmptyCacheThread, self).__init__()
@@ -113,11 +136,11 @@ class LRUCacheDict(object):
                 c = self.ref()
                 if c:
                     next_expire = c.cleanup()
-                    if (next_expire is None):
+                    if next_expire is None:
                         time.sleep(self.peek_duration)
                     else:
                         time.sleep(next_expire + 1)
-                c = None
+                        # c = None
 
     @_lock_decorator
     def size(self):
@@ -143,7 +166,7 @@ class LRUCacheDict(object):
         self.__access_times.clear()
 
     def __contains__(self, key):
-        return self.has_key(key)
+        return key in self.__values
 
     @_lock_decorator
     def has_key(self, key):
@@ -206,7 +229,7 @@ class LRUCacheDict(object):
                 break
 
         # If we have more than self.max_size items, delete the oldest
-        while (len(self.__values) > self.max_size):
+        while len(self.__values) > self.max_size:
             for k in self.__access_times:
                 self.__delete__(k)
                 break
@@ -216,9 +239,112 @@ class LRUCacheDict(object):
             return None
 
 
+class REDIS_MODE:
+    HOST = 'host'
+    PORT = 'port'
+    EXPIRED_TIME_FOR_KEY = 'expired_time_for_key'
+
+
+class RedisCacheDict(object):
+    """ A dictionary-like object, supporting LRU caching semantics.
+
+    >>> d = LRUCacheDict(max_size=3, expiration=3)
+    >>> d['foo'] = 'bar'
+    >>> d['foo']
+    'bar'
+    >>> import time
+    >>> time.sleep(4) # 4 seconds > 3 second cache expiry of d
+    >>> d['foo']
+    Traceback (most recent call last):
+        ...
+    KeyError: 'foo'
+    >>> d['a'] = 'A'
+    >>> d['b'] = 'B'
+    >>> d['c'] = 'C'
+    >>> d['d'] = 'D'
+    >>> d['a'] # Should return value error, since we exceeded the max cache size
+    Traceback (most recent call last):
+        ...
+    KeyError: 'a'
+
+    By default, this cache will only expire items whenever you poke it - all methods on
+    this class will result in a cleanup. If the thread_clear option is specified, a background
+    thread will clean it up every thread_clear_min_check seconds.
+
+    If this class must be used in a multithreaded environment, the option concurrent should be
+    set to true. Note that the cache will always be concurrent if a background cleanup thread
+    is used.
+    """
+
+    def __init__(self, config_file_name, max_size=CACHE_MAX_SIZE_DEFAULT, expiration=CACHE_MAX_SIZE_DEFAULT):
+        self.max_size = max_size
+        self.expiration = expiration
+        config = configparser.ConfigParser()
+        config.read(config_file_name, 'utf-8')
+        self.host = config.options(REDIS_MODE.__name__)[REDIS_MODE.HOST]
+        self.port = config.options(REDIS_MODE.__name__)[REDIS_MODE.PORT]
+        self._redis = redis.Redis(host=self.host, port=self.port, db=0)
+
+    @_lock_decorator
+    def size(self):
+        return self._redis.dbsize()
+
+    @_lock_decorator
+    def clear(self):
+        """
+        Clears the dict. Không thực hiện do trong Redis có thể dùng chung nhiều dự án
+        """
+        pass
+
+    def __contains__(self, key):
+        return self._redis.exists(key)
+
+    @_lock_decorator
+    def has_key(self, key):
+        """
+        This method should almost NEVER be used. The reason is that between the time
+        has_key is called, and the key is accessed, the key might vanish.
+
+        You should ALWAYS use a try: ... except KeyError: ... block.
+
+        >>> d = LRUCacheDict(max_size=3, expiration=1)
+        >>> d['foo'] = 'bar'
+        >>> d['foo']
+        'bar'
+        >>> import time
+        >>> if d.has_key('foo'):
+        ...    time.sleep(2) #Oops, the key 'foo' is gone!
+        ...    d['foo']
+        Traceback (most recent call last):
+        ...
+        KeyError: 'foo'
+        """
+        return self._redis.exists(key)
+
+    @_lock_decorator
+    def __setitem__(self, key, value):
+        self._redis.set(key, value, self.expiration)
+        self.cleanup()
+
+    @_lock_decorator
+    def __getitem__(self, key):
+        return self._redis.get(key)
+
+    @_lock_decorator
+    def __delete__(self, key):
+        self._redis.delete([key])
+
+    @_lock_decorator
+    def cleanup(self):
+        keys = self._redis.keys()
+        a_range = self.size() - self.max_size
+        if a_range > 0:
+            self._redis.delete(keys[0:a_range])
+
+
 class LRUCachedFunction(object):
     """
-    A memoized function, backed by an LRU cache.
+    Một chức năng ghi nhớ, được hỗ trợ bởi một bộ nhớ cache LRU.
 
     >>> def f(x):
     ...    print "Calling f(" + str(x) + ")"
@@ -245,23 +371,31 @@ class LRUCachedFunction(object):
     >>> f(6)
     Calling f(6)
     6
-    >>> f(4) #No longer in cache - 4 is the least recently used, and there are at least 3 others items in cache [3,4,5,6].
+    >>> f(4) #No longer in cache - 4 is the least recently used, and there are at least 3 others
+    # items in cache [3,4,5,6].
     Calling f(4)
     4
 
     """
 
-    def __init__(self, function, cache=None):
+    def __init__(self, a_function, cache=None, store_type=STORE_TYPE.LOCAL, config_file_name=None):
         if cache:
             self.cache = cache
         else:
-            self.cache = LRUCacheDict()
-        self.function = function
+            if store_type == STORE_TYPE.LOCAL:
+                self.cache = LRUCacheDict()
+            elif store_type == STORE_TYPE.REDIS:
+                if config_file_name is None:
+                    raise ValueError('config_file_name must not be None if store_type is REDIS')
+                self.cache = RedisCacheDict(config_file_name)
+            else:
+                raise NotImplementedError('store_type=%s' % store_type)
+        self.function = a_function
         self.__name__ = self.function.__name__
 
     def __call__(self, *args, **kwargs):
-        key = repr(
-            (args, kwargs)) + "#" + self.__name__  # In principle a python repr(...) should not return any # characters.
+        # Về nguyên tắc một repr python (...) không nên trả về bất kỳ ký tự '#'.
+        key = repr((args, kwargs)) + "#" + self.__name__
         try:
             return self.cache[key]
         except KeyError:
@@ -274,12 +408,14 @@ if __name__ == "__main__":
     @lru_cache_function(max_size=1024, expiration=15 * 60)
     def some_expensive_method(x):
         print("Calling some_expensive_method(" + str(x) + ")")
-        return x+200
+        return x + 200
+
 
     @lru_cache_function(max_size=1024, expiration=15 * 60)
     def obj_some_expensive_method(x):
         print("Calling some_expensive_method(" + str(x) + ")")
         return {"title": "data", "value": x}
+
 
     # This will print "Calling f(3)", will return 3
     print('cache value', some_expensive_method(3))
