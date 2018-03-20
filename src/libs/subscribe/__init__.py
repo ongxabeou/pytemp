@@ -44,8 +44,19 @@ class SubscribeFunction:
         self.entity_id_index = entity_id_index
 
     def __call__(self, *args, **kwargs):
-        value = self.function(*args, **kwargs)
-        entity_id = args[self.entity_id_index]
+        try:
+            value = self.function(*args, **kwargs)
+        except TypeError as e:
+            if 'missing 1 required positional argument' in str(e):
+                value = self.function(0, *args, **kwargs)
+            else:
+                raise e
+
+        entity_id = args[self.entity_id_index] if len(args) else None
+        if entity_id is None and len(kwargs.items()) > 0:
+            for key, value in kwargs.items():
+                entity_id = value
+                break
         SubscribeAssigner().give(self.__name__, entity_id, list(args), kwargs, value)
         return value
 
@@ -118,7 +129,7 @@ if __name__ == "__main__":
     SubscribeAssigner().add_performer(TestPerformer())
 
 
-    @subscribe(label='some_expensive_method', entity_id_index=0)
+    @subscribe(entity_id_index=0)
     def some_expensive_method(x):
         print("Calling some_expensive_method(" + str(x) + ")")
         return x + 200
@@ -134,4 +145,19 @@ if __name__ == "__main__":
 
     some_expensive_method2(14)
 
-    sleep(0.1)
+
+    class TestCache:
+        # @staticmethod
+        @subscribe(label='some_expensive_method', entity_id_index=0)
+        def test(self, x, y=1):
+            print("TestCache::test param %s" % x)
+            return x + y
+
+
+    tc = TestCache()
+    tt = tc.test(1, 1)
+    tt += tc.test(2, y=1)
+    tt += tc.test(x=2, y=1)
+    print(tt)
+
+    sleep(0.2)
