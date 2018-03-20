@@ -107,15 +107,12 @@ class LRUCachedFunction(object):
             else:
                 raise NotImplementedError('store_type=%s' % store_type)
         self.function = a_function
-        self.__name__ = self.function.__name__
-        self.prefix_key = prefix_key
+        self.__name__ = prefix_key if prefix_key else self.function.__name__
 
     def __call__(self, *args, **kwargs):
         # Về nguyên tắc một repr python (...) không nên trả về bất kỳ ký tự '#'.
-        if self.prefix_key:
-            key = repr((args, kwargs)) + "#" + self.prefix_key
-        else:
-            key = repr((args, kwargs)) + "#" + self.__name__
+        key = self.__name__ + "#" + repr((args, kwargs))
+
         try:
             # print("cache key", key)
             return self.cache[key]
@@ -192,8 +189,8 @@ class LRUCacheDict(object):
         if self.concurrent:
             self._rlock = threading.RLock()
         if thread_clear:
-            t = self.EmptyCacheThread(self)
-            t.start()
+            et = self.EmptyCacheThread(self)
+            et.start()
 
     class EmptyCacheThread(threading.Thread):
         daemon = True
@@ -481,7 +478,7 @@ if __name__ == "__main__":
     print(obj_some_expensive_method(3))
 
     tc = TestCache()
-    t = tc.test(1)
-    t += tc.test(2)
-    t += tc.test(2)
-    print(t)
+    tt = tc.test(1)
+    tt += tc.test(2)
+    tt += tc.test(2)
+    print(tt)
