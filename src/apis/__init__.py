@@ -4,6 +4,7 @@ from flask import Flask, jsonify
 
 from src.common.lang_config import LANG
 from src.common.my_except import BaseMoError, ParamInvalidError, InputNotFoundError, LogicSystemError
+from src.common.pytemp_authorization import PytempAuthorization
 from src.common.system_config import SystemConfig
 from src.libs.http_jwt_auth import HttpJwtAuth, TYPICALLY
 from src.models.bot_config_repository import BotConfigRepository
@@ -30,7 +31,7 @@ class API_URI:
 
 app = Flask(__name__)
 sys_conf = SystemConfig()
-auth = HttpJwtAuth()
+auth = HttpJwtAuth(PytempAuthorization())
 
 
 def get_param_exception(errors):

@@ -5,9 +5,11 @@
     mail: lytuananh2003@gmail.com
     Date created: 2017/04/28
 """
+from abc import abstractmethod
 from functools import wraps
 from flask import make_response, request
 from werkzeug.datastructures import Authorization
+from jose import jwt
 
 
 class TYPICALLY:
@@ -16,26 +18,55 @@ class TYPICALLY:
     DIGEST = 'Digest'
 
 
+class ProjectAuthorization:
+    def __init__(self):
+        self.key = None
+        self.algorithm = None
+        self.options = {'verify_signature': True,
+                        'verify_aud': False,
+                        'verify_iat': False,
+                        'verify_exp': False,
+                        'verify_nbf': False,
+                        'verify_iss': False,
+                        'verify_sub': False,
+                        'verify_jti': False,
+                        }
+
+    @abstractmethod
+    def verify_token(self, jwt_token, typically):
+        pass
+
+    @abstractmethod
+    def is_permitted(self, jwt_token, typically, method):
+        pass
+
+    def encode(self, body):
+        try:
+            return jwt.encode(body, self.key, self.algorithm)
+        except Exception as e:
+            print('can not encode token: %s' % e)
+            return None
+
+    def decode(self, body):
+        try:
+            return jwt.decode(body, self.key, self.algorithm, self.options)
+        except Exception as e:
+            print('can not decode token: %s' % e)
+            return None
+
+
 class HttpJwtAuth(object):
-    def __init__(self, scheme=None, realm=None):
+    def __init__(self, project_auth: ProjectAuthorization, scheme=None, realm=None):
+        # ProjectAuthorization do project cụ thể sẽ cài đặt phương thức authen của project đó.
+        self.project_auth = project_auth
         self.scheme = [scheme] or [TYPICALLY.BASIC.lower(), TYPICALLY.DIGEST.lower(), TYPICALLY.BEARER.lower()]
         self.realm = realm or "Authentication Required"
-        self.get_token_callback = None
         self.auth_error_callback = None
-        self.is_permitted_callback = None
 
         def default_auth_error():
             return "Unauthorized Access"
 
         self.error_handler(default_auth_error)
-
-    def get_token(self, f):
-        self.get_token_callback = f
-        return f
-
-    def is_permitted(self, f):
-        self.is_permitted_callback = f
-        return f
 
     def error_handler(self, f):
         @wraps(f)
@@ -101,13 +132,13 @@ class HttpJwtAuth(object):
         return decorated_function
 
     def authenticate(self, auth_type, token, method):
-        if self.get_token_callback:
-            local_token = self.get_token_callback(token)
-            if self.is_permitted_callback and token == local_token:
-                return self.is_permitted_callback(auth_type, token, method)
-            return token == local_token
+        if self.project_auth is None:
+            raise NotImplementedError('developer must implement for ProjectAuthorization class')
+        local_token = self.project_auth.verify_token(token, auth_type)
+        if local_token:
+            return self.project_auth.is_permitted(token, auth_type, method)
         else:
-            raise NotImplementedError('developer must implement get_token for callback')
+            return False
 
 
 # --------------------------- TEST ---------------------------
