@@ -9,6 +9,7 @@
 from src.controllers import CUSTOMER_STRUCTURE, META_CLASS
 from src.controllers.base_controller import BaseController
 from src.libs.http_validator import Required, Length, Unicode, Range, In, InstanceOf, PhoneNumber, Email
+from src.libs.subscribe import subscribe
 from src.models import BOT_STRUCTURE, CONSUMER
 from src.models.bot_config_repository import BotConfigRepository
 
@@ -19,6 +20,7 @@ class BotController(BaseController):
         self.abort_if_param_none_or_empty(bot_id, 'bot_id')
         self.bot_id = bot_id
 
+    @subscribe(label='', entity_id_index=1)
     def put(self, customer):
         self.abort_if_param_none_or_empty(customer, 'thông tin khách hàng')
 
@@ -37,6 +39,7 @@ class BotController(BaseController):
     def delete(self):
         return BotConfigRepository().delete(self.bot_id)
 
+    @subscribe(entity_id_index=1)
     def set(self, bot_config):
         self.abort_if_param_none_or_empty(bot_config, 'bot config')
 

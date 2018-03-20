@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from src.common import WORKING_DIR
+from src.performers import init_all_performer
+
+init_all_performer()
 
 BOT_SINGLE_SELLER_SCRIPT_PATH = WORKING_DIR + '/resources/scripts/bot_single_seller.script.json'
 
