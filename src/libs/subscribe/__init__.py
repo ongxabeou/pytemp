@@ -15,7 +15,7 @@
 from abc import abstractmethod
 
 from src.libs.singleton import Singleton
-from src.libs.thread_pool import ThreadPool
+from src.libs.thread_pool import ThreadPool, function_to_thread
 
 
 def subscribe(label=None, entity_id_index=0):
@@ -100,7 +100,7 @@ class SubscribeAssigner:
         }
         self._owner_run(data)
 
-    @thread_pool.thread
+    @function_to_thread(thread_pool)
     def _owner_run(self, item):
         for name, p in self.performers.items():
             try:
