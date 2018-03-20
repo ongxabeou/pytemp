@@ -17,6 +17,8 @@ import weakref
 
 import redis
 
+from src.libs.singleton import Singleton
+
 
 class STORE_TYPE:
     LOCAL = 1
@@ -27,7 +29,7 @@ CACHE_MAX_SIZE_DEFAULT = 1024000
 EXPIRATION_DEFAULT = 15 * 60
 
 
-def lru_cache_function(max_size=CACHE_MAX_SIZE_DEFAULT,
+def lru_cache_function(prefix_key=None, max_size=CACHE_MAX_SIZE_DEFAULT,
                        expiration=EXPIRATION_DEFAULT,
                        store_type=STORE_TYPE.LOCAL,
                        config_file_name=None):
@@ -45,14 +47,81 @@ def lru_cache_function(max_size=CACHE_MAX_SIZE_DEFAULT,
 
     def wrapper(func):
         if store_type == STORE_TYPE.LOCAL:
-            return LRUCachedFunction(func, LRUCacheDict(max_size, expiration))
+            return LRUCachedFunction(func, prefix_key, LRUCacheDict(max_size, expiration))
         elif store_type == STORE_TYPE.REDIS:
             if config_file_name is None:
                 raise ValueError('config_file_name must not be None if store_type is REDIS')
-            return LRUCachedFunction(func, RedisCacheDict(config_file_name, max_size, expiration))
+            return LRUCachedFunction(func, prefix_key, RedisCacheDict(config_file_name, max_size, expiration))
         else:
             raise NotImplementedError('store_type=%s' % store_type)
+
     return wrapper
+
+
+class LRUCachedFunction(object):
+    """
+    Một chức năng ghi nhớ, được hỗ trợ bởi một bộ nhớ cache LRU.
+
+    >>> def f(x):
+    ...    print "Calling f(" + str(x) + ")"
+    ...    return x
+    >>> f = LRUCachedFunction(f, LRUCacheDict(max_size=3, expiration=3) )
+    >>> f(3)
+    Calling f(3)
+    3
+    >>> f(3)
+    3
+    >>> import time
+    >>> time.sleep(4) #Cache should now be empty, since expiration time is 3.
+    >>> f(3)
+    Calling f(3)
+    3
+    >>> f(4)
+    Calling f(4)
+    4
+    >>> f(5)
+    Calling f(5)
+    5
+    >>> f(3) #Still in cache, so no print statement. At this point, 4 is the least recently used.
+    3
+    >>> f(6)
+    Calling f(6)
+    6
+    >>> f(4) #No longer in cache - 4 is the least recently used, and there are at least 3 others
+    # items in cache [3,4,5,6].
+    Calling f(4)
+    4
+
+    """
+
+    def __init__(self, a_function, prefix_key=None, cache=None, store_type=STORE_TYPE.LOCAL, config_file_name=None):
+        if cache:
+            self.cache = cache
+        else:
+            if store_type == STORE_TYPE.LOCAL:
+                self.cache = LRUCacheDict()
+            elif store_type == STORE_TYPE.REDIS:
+                if config_file_name is None:
+                    raise ValueError('config_file_name must not be None if store_type is REDIS')
+                self.cache = RedisCacheDict(config_file_name)
+            else:
+                raise NotImplementedError('store_type=%s' % store_type)
+        self.function = a_function
+        self.__name__ = self.function.__name__
+        self.prefix_key = prefix_key
+
+    def __call__(self, *args, **kwargs):
+        # Về nguyên tắc một repr python (...) không nên trả về bất kỳ ký tự '#'.
+        if self.prefix_key:
+            key = repr((args, kwargs)) + "#" + self.prefix_key
+        else:
+            key = repr((args, kwargs)) + "#" + self.__name__
+        try:
+            return self.cache[key]
+        except KeyError:
+            value = self.function(*args, **kwargs)
+            self.cache[key] = value
+            return value
 
 
 def _lock_decorator(func):
@@ -244,11 +313,14 @@ class REDIS_MODE:
     PORT = 'port'
     EXPIRED_TIME_FOR_KEY = 'expired_time_for_key'
 
-
+# [chú ý] RedisCacheDict là Singleton nhằm đẩy nhanh tốc độ khởi tạo của đối tượng này.
+# Tuy nhiên chưa chắc Singleton có ảnh hưởng gì đến hệ thống hay không, cần theo
+# dõi trong quá trình sử dụng thục tế để xác định.
+@Singleton
 class RedisCacheDict(object):
     """ A dictionary-like object, supporting LRU caching semantics.
 
-    >>> d = LRUCacheDict(max_size=3, expiration=3)
+    >>> d = RedisCacheDict(max_size=3, expiration=3)
     >>> d['foo'] = 'bar'
     >>> d['foo']
     'bar'
@@ -342,76 +414,17 @@ class RedisCacheDict(object):
             self._redis.delete(keys[0:a_range])
 
 
-class LRUCachedFunction(object):
-    """
-    Một chức năng ghi nhớ, được hỗ trợ bởi một bộ nhớ cache LRU.
-
-    >>> def f(x):
-    ...    print "Calling f(" + str(x) + ")"
-    ...    return x
-    >>> f = LRUCachedFunction(f, LRUCacheDict(max_size=3, expiration=3) )
-    >>> f(3)
-    Calling f(3)
-    3
-    >>> f(3)
-    3
-    >>> import time
-    >>> time.sleep(4) #Cache should now be empty, since expiration time is 3.
-    >>> f(3)
-    Calling f(3)
-    3
-    >>> f(4)
-    Calling f(4)
-    4
-    >>> f(5)
-    Calling f(5)
-    5
-    >>> f(3) #Still in cache, so no print statement. At this point, 4 is the least recently used.
-    3
-    >>> f(6)
-    Calling f(6)
-    6
-    >>> f(4) #No longer in cache - 4 is the least recently used, and there are at least 3 others
-    # items in cache [3,4,5,6].
-    Calling f(4)
-    4
-
-    """
-
-    def __init__(self, a_function, cache=None, store_type=STORE_TYPE.LOCAL, config_file_name=None):
-        if cache:
-            self.cache = cache
-        else:
-            if store_type == STORE_TYPE.LOCAL:
-                self.cache = LRUCacheDict()
-            elif store_type == STORE_TYPE.REDIS:
-                if config_file_name is None:
-                    raise ValueError('config_file_name must not be None if store_type is REDIS')
-                self.cache = RedisCacheDict(config_file_name)
-            else:
-                raise NotImplementedError('store_type=%s' % store_type)
-        self.function = a_function
-        self.__name__ = self.function.__name__
-
-    def __call__(self, *args, **kwargs):
-        # Về nguyên tắc một repr python (...) không nên trả về bất kỳ ký tự '#'.
-        key = repr((args, kwargs)) + "#" + self.__name__
-        try:
-            return self.cache[key]
-        except KeyError:
-            value = self.function(*args, **kwargs)
-            self.cache[key] = value
-            return value
-
-
 if __name__ == "__main__":
-    @lru_cache_function(max_size=1024, expiration=15 * 60)
+    __store_type = STORE_TYPE.REDIS
+    __file_config = ''
+
+    @lru_cache_function()
     def some_expensive_method(x):
         print("Calling some_expensive_method(" + str(x) + ")")
         return x + 200
 
 
-    @lru_cache_function(max_size=1024, expiration=15 * 60)
+    @lru_cache_function()
     def obj_some_expensive_method(x):
         print("Calling some_expensive_method(" + str(x) + ")")
         return {"title": "data", "value": x}

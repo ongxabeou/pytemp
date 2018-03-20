@@ -4,6 +4,8 @@ from src.common import WORKING_DIR
 
 BOT_SINGLE_SELLER_SCRIPT_PATH = WORKING_DIR + '/resources/scripts/bot_single_seller.script.json'
 
+class PREFIX_CACHE_KEY:
+    pass
 
 class CUSTOMER_STRUCTURE:
     ID = 'id'
