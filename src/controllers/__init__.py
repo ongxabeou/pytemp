@@ -6,7 +6,7 @@ BOT_SINGLE_SELLER_SCRIPT_PATH = WORKING_DIR + '/resources/scripts/bot_single_sel
 
 
 class PREFIX_CACHE_KEY:
-    pass
+    GET_INTENT = 'get_intent'
 
 
 class CUSTOMER_STRUCTURE:

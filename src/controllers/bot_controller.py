@@ -5,9 +5,10 @@
     mail: lytuananh2003@gmail.com
     Date created: 2017/04/28
 """
-
-from src.controllers import CUSTOMER_STRUCTURE, META_CLASS
+from src.common import DMAI_CONFIG_FILE_PATH
+from src.controllers import CUSTOMER_STRUCTURE, META_CLASS, PREFIX_CACHE_KEY
 from src.controllers.base_controller import BaseController
+from src.libs.caching import lru_cache_function, STORE_TYPE
 from src.libs.http_validator import Required, Length, Unicode, Range, In, InstanceOf, PhoneNumber, Email
 from src.libs.subscribe import subscribe
 from src.models import BOT_STRUCTURE, CONSUMER
@@ -78,6 +79,9 @@ class BotController(BaseController):
         return BotConfigRepository().get(self.bot_id)
         # return BotConfigRepository().set(self.bot_id, bot_config)
 
+    @lru_cache_function(prefix_key=PREFIX_CACHE_KEY.GET_INTENT,
+                        store_type=STORE_TYPE.REDIS,
+                        config_file_name=DMAI_CONFIG_FILE_PATH)
     def get(self):
         return BotConfigRepository().get(self.bot_id)
 

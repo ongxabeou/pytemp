@@ -117,9 +117,16 @@ class LRUCachedFunction(object):
         else:
             key = repr((args, kwargs)) + "#" + self.__name__
         try:
+            # print("cache key", key)
             return self.cache[key]
         except KeyError:
-            value = self.function(*args, **kwargs)
+            try:
+                value = self.function(*args, **kwargs)
+            except TypeError as e:
+                if 'missing 1 required positional argument' in str(e):
+                    value = self.function(0, *args, **kwargs)
+                else:
+                    raise e
             self.cache[key] = value
             return value
 
@@ -313,6 +320,7 @@ class REDIS_MODE:
     PORT = 'port'
     EXPIRED_TIME_FOR_KEY = 'expired_time_for_key'
 
+
 # [chú ý] RedisCacheDict là Singleton nhằm đẩy nhanh tốc độ khởi tạo của đối tượng này.
 # Tuy nhiên chưa chắc Singleton có ảnh hưởng gì đến hệ thống hay không, cần theo
 # dõi trong quá trình sử dụng thục tế để xác định.
@@ -418,6 +426,15 @@ if __name__ == "__main__":
     __store_type = STORE_TYPE.REDIS
     __file_config = ''
 
+
+    class TestCache:
+        # @staticmethod
+        @lru_cache_function()
+        def test(self, x):
+            print("TestCache::test param %s" % x)
+            return x + 1
+
+
     @lru_cache_function()
     def some_expensive_method(x):
         print("Calling some_expensive_method(" + str(x) + ")")
@@ -462,3 +479,9 @@ if __name__ == "__main__":
     obj['title'] = "new value"
 
     print(obj_some_expensive_method(3))
+
+    tc = TestCache()
+    t = tc.test(1)
+    t += tc.test(2)
+    t += tc.test(2)
+    print(t)
