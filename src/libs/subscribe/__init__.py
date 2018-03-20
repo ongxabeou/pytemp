@@ -15,7 +15,7 @@
 from abc import abstractmethod
 
 from src.libs.singleton import Singleton
-from src.libs.thread_pool import ThreadPool, function_to_thread
+from src.libs.thread_pool import ThreadPool
 
 
 def subscribe(label=None, entity_id_index=0):
