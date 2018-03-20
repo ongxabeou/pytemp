@@ -12,6 +12,7 @@ from src.libs.http_validator import Required, Length, Unicode, Range, In, Instan
 from src.libs.subscribe import subscribe
 from src.models import BOT_STRUCTURE, CONSUMER
 from src.models.bot_config_repository import BotConfigRepository
+from src.performers import SUBSCRIBE_LABEL
 
 
 class BotController(BaseController):
@@ -20,7 +21,7 @@ class BotController(BaseController):
         self.abort_if_param_none_or_empty(bot_id, 'bot_id')
         self.bot_id = bot_id
 
-    @subscribe(label='', entity_id_index=1)
+    @subscribe(label=SUBSCRIBE_LABEL.PUT_CUSTOMER, entity_id_index=1)
     def put(self, customer):
         self.abort_if_param_none_or_empty(customer, 'thông tin khách hàng')
 
@@ -36,10 +37,11 @@ class BotController(BaseController):
 
         return 'say hello, đây là project mẫu'
 
+    @subscribe(label=SUBSCRIBE_LABEL.DELETE_BOT_CONFIG, entity_id_index=1)
     def delete(self):
         return BotConfigRepository().delete(self.bot_id)
 
-    @subscribe(entity_id_index=1)
+    @subscribe(label=SUBSCRIBE_LABEL.UPDATE_BOT_CONFIG, entity_id_index=1)
     def set(self, bot_config):
         self.abort_if_param_none_or_empty(bot_config, 'bot config')
 
