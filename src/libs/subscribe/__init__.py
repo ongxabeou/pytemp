@@ -100,7 +100,7 @@ class SubscribeAssigner:
         }
         self._owner_run(data)
 
-    @function_to_thread(thread_pool)
+    @thread_pool.thread
     def _owner_run(self, item):
         for name, p in self.performers.items():
             try:
