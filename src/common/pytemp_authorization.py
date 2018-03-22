@@ -1,8 +1,5 @@
-from flask import json
-
-import redis
 import requests
-from jose import jwt
+from flask import json
 
 from src.common.lang_config import LANG
 from src.common.my_except import BaseMoError
