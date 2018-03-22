@@ -88,15 +88,6 @@ class BasePerformer(object):
         pass
 
 
-class TestPerformer(BasePerformer):
-    def get_capacities(self):
-        return ['some_expensive_method']
-
-    def do(self, item):
-        print(repr(item))
-        return True
-
-
 thread_pool = ThreadPool(num_workers=8)
 
 
@@ -132,6 +123,16 @@ class SubscribeAssigner:
 # ------------------Test------------------------
 if __name__ == "__main__":
     from time import sleep
+
+
+    class TestPerformer(BasePerformer):
+        def get_capacities(self):
+            return ['some_expensive_method']
+
+        def do(self, item):
+            print(repr(item))
+            return True
+
 
     SubscribeAssigner().add_performer(TestPerformer())
     SubscribeAssigner().add_performer(TestPerformer())
