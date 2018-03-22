@@ -82,44 +82,6 @@ def internal_server_error(e=None):
     return jsonify(mo.get_message()), 500
 
 
-@auth.get_token
-def get_local_token(token):
-    try:
-        # hàm lấy token để kiểm tra với token đầu vào của HttpJwtAuth, nếu
-        # không dùng hàm này để check thì trả về luôn token của tham số đầu vào
-        if not token:
-            return None
-        print('%s request authenticated' % token)
-        return token
-    except KeyError:
-        return None
-
-
-@auth.is_permitted
-def is_permitted(typically, jwt_token, method):
-    if typically == TYPICALLY.DIGEST:
-        # nếu type của Authorization là Digest
-        # hệ thống tự động chuyển sang digest đây là trường
-        # phải check theo thuật toán JWT.
-        return False
-    elif typically == TYPICALLY.BASIC:
-        # trường hợp type là basic thì check api_key cơ bản
-        bot_conf = BotConfigRepository()
-        if method in list(bot_conf.user_permitted[PERMITTED_STRUCTURE.METHODS]):
-            return True
-
-        admin_token = sys_conf.get_section_map(ADMIN.SECTION)[ADMIN.TOKEN]
-
-        if admin_token == jwt_token:
-            return method in list(bot_conf.admin_permitted[PERMITTED_STRUCTURE.METHODS])
-    elif typically == TYPICALLY.BEARER:
-        # nếu type của Authorization là Bearer
-        # hệ thống tự động chuyển sang Bearer đây là trường
-        # phải check theo thuật toán JWT.
-        return False
-    return False
-
-
 def try_catch_error(f):
     @wraps(f)
     def decorated(*args, **kwargs):
