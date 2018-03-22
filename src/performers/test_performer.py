@@ -1,7 +1,13 @@
 from src.libs.subscribe import BasePerformer
+from src.performers import SUBSCRIBE_LABEL
 
 
 class TestPerformer(BasePerformer):
+    def get_capacities(self):
+        return [SUBSCRIBE_LABEL.DELETE_BOT_CONFIG,
+                SUBSCRIBE_LABEL.UPDATE_BOT_CONFIG,
+                SUBSCRIBE_LABEL.PUT_CUSTOMER]
+
     def do(self, item):
         """
         hàm thực hiện một yêu cầu, kiểm tra item.label xem có thuộc
@@ -16,9 +22,5 @@ class TestPerformer(BasePerformer):
         }
         :return: trả về true nếu thực hiện và False nêu không thực hiện
         """
-        if item['label'] != 'some_expensive_method':
-            print('label %s not my responsibility' % item['label'])
-            return False
-
         print(repr(item))
         return True

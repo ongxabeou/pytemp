@@ -63,6 +63,14 @@ class SubscribeFunction:
 
 class BasePerformer(object):
     @abstractmethod
+    def get_capacities(self):
+        """
+        lấy danh sách năng lực của Performer
+        :return: trả về một mảng các label
+        """
+        pass
+
+    @abstractmethod
     def do(self, item):
         """
         hàm thực hiện một yêu cầu, kiểm tra item.label xem có thuộc
@@ -81,11 +89,10 @@ class BasePerformer(object):
 
 
 class TestPerformer(BasePerformer):
-    def do(self, item):
-        if item['label'] != 'some_expensive_method':
-            print('label %s not my responsibility' % item['label'])
-            return False
+    def get_capacities(self):
+        return ['some_expensive_method']
 
+    def do(self, item):
         print(repr(item))
         return True
 
@@ -115,7 +122,8 @@ class SubscribeAssigner:
     def _owner_run(self, item):
         for name, p in self.performers.items():
             try:
-                p.do(item)
+                if item['label'] in p.get_capacities():
+                    p.do(item)
             except Exception as e:
                 print('execute performer %s error: %s' % (name, e))
                 pass
