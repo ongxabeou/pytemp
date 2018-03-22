@@ -47,11 +47,12 @@ def lru_cache_function(prefix_key=None, max_size=CACHE_MAX_SIZE_DEFAULT,
 
     def wrapper(func):
         if store_type == STORE_TYPE.LOCAL:
-            return LRUCachedFunction(func, prefix_key, LRUCacheDict(max_size, expiration))
+            return LRUCachedFunction(func, prefix_key=prefix_key, cache=LRUCacheDict(max_size, expiration))
         elif store_type == STORE_TYPE.REDIS:
             if config_file_name is None:
                 raise ValueError('config_file_name must not be None if store_type is REDIS')
-            return LRUCachedFunction(func, prefix_key, RedisCacheDict(config_file_name, max_size, expiration))
+            return LRUCachedFunction(func, prefix_key=prefix_key,
+                                     cache=RedisCacheDict(config_file_name, max_size, expiration))
         else:
             raise NotImplementedError('store_type=%s' % store_type)
 
