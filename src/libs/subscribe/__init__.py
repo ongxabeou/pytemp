@@ -52,11 +52,14 @@ class SubscribeFunction:
             else:
                 raise e
 
-        entity_id = args[self.entity_id_index] if len(args) else None
+        entity_id = args[self.entity_id_index] if len(args) > self.entity_id_index else None
         if entity_id is None and len(kwargs.items()) > 0:
+            i = len(args)
             for key, value in kwargs.items():
-                entity_id = value
-                break
+                if i == self.entity_id_index:
+                    entity_id = value
+                    break
+                i += 1
         SubscribeAssigner().give(self.__name__, entity_id, list(args), kwargs, value)
         return value
 
