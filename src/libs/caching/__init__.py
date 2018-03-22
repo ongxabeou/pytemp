@@ -17,9 +17,6 @@ import weakref
 
 import redis
 
-from src.libs.singleton import Singleton
-
-
 class STORE_TYPE:
     LOCAL = 1
     REDIS = 2
@@ -29,34 +26,41 @@ CACHE_MAX_SIZE_DEFAULT = 1024000
 EXPIRATION_DEFAULT = 15 * 60
 
 
-def lru_cache_function(prefix_key=None, max_size=CACHE_MAX_SIZE_DEFAULT,
-                       expiration=EXPIRATION_DEFAULT,
-                       store_type=STORE_TYPE.LOCAL,
-                       config_file_name=None):
-    """
-    >>> @lru_cache_function(3, 1)
-    ... def f(x):
-    ...    print "Calling f(" + str(x) + ")"
-    ...    return x
-    >>> f(3)
-    Calling f(3)
-    3
-    >>> f(3)
-    3
-    """
-
-    def wrapper(func):
-        if store_type == STORE_TYPE.LOCAL:
-            return LRUCachedFunction(func, prefix_key=prefix_key, cache=LRUCacheDict(max_size, expiration))
-        elif store_type == STORE_TYPE.REDIS:
-            if config_file_name is None:
+class LruCache:
+    def __init__(self, max_size=CACHE_MAX_SIZE_DEFAULT,
+                 expiration=EXPIRATION_DEFAULT,
+                 store_type=STORE_TYPE.LOCAL,
+                 config_file_name=None):
+        self.max_size = max_size
+        self.expiration = expiration
+        self.store_type = store_type
+        self.config_file_name = config_file_name
+        if self.store_type == STORE_TYPE.LOCAL:
+            self.cache = LRUCacheDict(self.max_size, self.expiration)
+        elif self.store_type == STORE_TYPE.REDIS:
+            if self.config_file_name is None:
                 raise ValueError('config_file_name must not be None if store_type is REDIS')
-            return LRUCachedFunction(func, prefix_key=prefix_key,
-                                     cache=RedisCacheDict(config_file_name, max_size, expiration))
+            self.cache = RedisCacheDict(self.config_file_name, self.max_size, self.expiration)
         else:
-            raise NotImplementedError('store_type=%s' % store_type)
+            raise NotImplementedError('store_type=%s' % self.store_type)
 
-    return wrapper
+    def add(self, prefix_key=None):
+        """
+        # >>> @lru_cache_function(3, 1)
+        # ... def f(x):
+        # ...    print "Calling f(" + str(x) + ")"
+        # ...    return x
+        # >>> f(3)
+        # Calling f(3)
+        # 3
+        # >>> f(3)
+        # 3
+        """
+
+        def wrapper(func):
+            return LRUCachedFunction(func, prefix_key, self.cache)
+
+        return wrapper
 
 
 class LRUCachedFunction(object):
@@ -319,29 +323,25 @@ class REDIS_MODE:
     EXPIRED_TIME_FOR_KEY = 'expired_time_for_key'
 
 
-# [chú ý] RedisCacheDict là Singleton nhằm đẩy nhanh tốc độ khởi tạo của đối tượng này.
-# Tuy nhiên chưa chắc Singleton có ảnh hưởng gì đến hệ thống hay không, cần theo
-# dõi trong quá trình sử dụng thục tế để xác định.
-@Singleton
-class RedisCacheDict(object):
+class RedisCacheDict:
     """ A dictionary-like object, supporting LRU caching semantics.
-
-    >>> d = RedisCacheDict(max_size=3, expiration=3)
-    >>> d['foo'] = 'bar'
-    >>> d['foo']
-    'bar'
-    >>> import time
-    >>> time.sleep(4) # 4 seconds > 3 second cache expiry of d
-    >>> d['foo']
-    Traceback (most recent call last):
-        ...
-    KeyError: 'foo'
-    >>> d['a'] = 'A'
-    >>> d['b'] = 'B'
-    >>> d['c'] = 'C'
-    >>> d['d'] = 'D'
-    >>> d['a'] # Should return value error, since we exceeded the max cache size
-    Traceback (most recent call last):
+    #
+    # >>> d = RedisCacheDict(max_size=3, expiration=3)
+    # >>> d['foo'] = 'bar'
+    # >>> d['foo']
+    # 'bar'
+    # >>> import time
+    # >>> time.sleep(4) # 4 seconds > 3 second cache expiry of d
+    # >>> d['foo']
+    # Traceback (most recent call last):
+    #     ...
+    # KeyError: 'foo'
+    # >>> d['a'] = 'A'
+    # >>> d['b'] = 'B'
+    # >>> d['c'] = 'C'
+    # >>> d['d'] = 'D'
+    # >>> d['a'] # Should return value error, since we exceeded the max cache size
+    # Traceback (most recent call last):
         ...
     KeyError: 'a'
 
@@ -354,13 +354,13 @@ class RedisCacheDict(object):
     is used.
     """
 
-    def __init__(self, config_file_name, max_size=CACHE_MAX_SIZE_DEFAULT, expiration=CACHE_MAX_SIZE_DEFAULT):
+    def __init__(self, config_file_name, max_size=CACHE_MAX_SIZE_DEFAULT, expiration=EXPIRATION_DEFAULT):
         self.max_size = max_size
         self.expiration = expiration
         config = configparser.ConfigParser()
         config.read(config_file_name, 'utf-8')
-        self.host = config.options(REDIS_MODE.__name__)[REDIS_MODE.HOST]
-        self.port = config.options(REDIS_MODE.__name__)[REDIS_MODE.PORT]
+        self.host = config.get(REDIS_MODE.__name__, REDIS_MODE.HOST)
+        self.port = config.get(REDIS_MODE.__name__, REDIS_MODE.PORT)
         self._redis = redis.Redis(host=self.host, port=self.port, db=0)
 
     @_lock_decorator
@@ -424,22 +424,24 @@ if __name__ == "__main__":
     __store_type = STORE_TYPE.REDIS
     __file_config = ''
 
+    lru_cache = LruCache()
+
 
     class TestCache:
         # @staticmethod
-        @lru_cache_function()
+        @lru_cache.add()
         def test(self, x):
             print("TestCache::test param %s" % x)
             return x + 1
 
 
-    @lru_cache_function()
+    @lru_cache.add()
     def some_expensive_method(x):
         print("Calling some_expensive_method(" + str(x) + ")")
         return x + 200
 
 
-    @lru_cache_function()
+    @lru_cache.add()
     def obj_some_expensive_method(x):
         print("Calling some_expensive_method(" + str(x) + ")")
         return {"title": "data", "value": x}

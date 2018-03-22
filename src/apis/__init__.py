@@ -6,10 +6,11 @@ from src.common.lang_config import LANG
 from src.common.my_except import BaseMoError, ParamInvalidError, InputNotFoundError, LogicSystemError
 from src.common.pytemp_authorization import PytempAuthorization
 from src.common.system_config import SystemConfig
+from src.libs.caching import LruCache, STORE_TYPE
 from src.libs.http_jwt_auth import HttpJwtAuth, TYPICALLY
 from src.models.bot_config_repository import BotConfigRepository
 from src.models import PERMITTED_STRUCTURE
-from src.common import ADMIN, SECTION, LOGGING_MODE
+from src.common import ADMIN, SECTION, LOGGING_MODE, DMAI_CONFIG_FILE_PATH
 from functools import wraps
 
 
@@ -32,6 +33,7 @@ class API_URI:
 app = Flask(__name__)
 sys_conf = SystemConfig()
 auth = HttpJwtAuth(PytempAuthorization())
+lru_redis_cache = LruCache(store_type=STORE_TYPE.REDIS, config_file_name=DMAI_CONFIG_FILE_PATH)
 
 
 def get_param_exception(errors):
