@@ -17,6 +17,7 @@ import weakref
 
 import redis
 
+
 class STORE_TYPE:
     LOCAL = 1
     REDIS = 2
@@ -61,6 +62,9 @@ class LruCache:
             return LRUCachedFunction(func, prefix_key, self.cache)
 
         return wrapper
+
+
+lru_local_cache = LruCache()
 
 
 class LRUCachedFunction(object):
