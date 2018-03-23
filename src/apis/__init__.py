@@ -8,10 +8,16 @@ from src.common.pytemp_authorization import PytempAuthorization
 from src.common.system_config import SystemConfig
 from src.libs.caching import LruCache, STORE_TYPE
 from src.libs.http_jwt_auth import HttpJwtAuth, TYPICALLY
+from src.libs.subscribe import SubscribeAssigner
 from src.models.bot_config_repository import BotConfigRepository
 from src.models import PERMITTED_STRUCTURE
 from src.common import ADMIN, SECTION, LOGGING_MODE, DMAI_CONFIG_FILE_PATH
 from functools import wraps
+
+from src.performers.test_performer import TestPerformer
+
+SubscribeAssigner().set_logger(SystemConfig().logger)
+SubscribeAssigner().add_performer(TestPerformer())
 
 
 class HTTP_METHOD:

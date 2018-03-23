@@ -7,20 +7,17 @@
 """
 import datetime
 import hashlib
-import sys
+# import sys
 
-# để có thể chạy được cho cả python 2 và 3
-import traceback
+# import traceback
 from functools import wraps
 
-IS_PY2 = sys.version_info < (3, 0)
-
-if IS_PY2:
-    from Queue import Queue
-else:
-    from queue import Queue
+from queue import Queue
 
 from threading import Thread
+import logging
+
+import sys
 
 
 class ThreadPool:
@@ -29,16 +26,36 @@ class ThreadPool:
     def __init__(self, num_workers, logger=None):
         self._tasks = Queue(num_workers)
         self._results = {}
+        if logger is None:
+            logger = logging.getLogger()
+            logger.setLevel(logging.DEBUG)
+            ch = logging.StreamHandler(sys.stdout)
+            ch.setLevel(logging.DEBUG)
+            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+            ch.setFormatter(formatter)
+            logger.addHandler(ch)
         for _ in range(num_workers):
             self.Worker(self._tasks, logger, self._results)
 
-    def add_task(self, func, *args, **kargs):
-        """ Thêm một tác vụ vào hàng đợi """
+    def set_logger(self, logger):
+        self.Worker.logger = logger
+
+    def add_task(self, func, *args, **kargs) -> object:
+        """ Thêm một tác vụ vào hàng đợi
+        :param func:
+        :param args:
+        :param kargs:
+        :return:
+        """
         self._tasks.put((func, args, kargs))
         return self.Worker.get_function_id(func, args, kargs)
 
-    def map(self, func, args_list):
-        """ Thêm một danh sách các nhiệm vụ vào hàng đợi """
+    def map(self, func, args_list) -> list:
+        """ Thêm một danh sách các nhiệm vụ vào hàng đợi
+        :param func:
+        :param args_list: danh sách tham số
+        :return:
+        """
         ids = []
         for args in args_list:
             ids.append(self.add_task(func, *args))
@@ -72,23 +89,18 @@ class ThreadPool:
             self.start()
 
         def run(self):
-            """ hàm thực hiện nhiệm vụ,
-                nếu nhiệm vụ đã từng thực hiện rồi thi không thực hiện nữa
-                nếu chưa thì thực hiện nhiệm vụ và ghi kết quả vào result
+            """ hàm thực hiện nhiệm vụ và ghi kết quả vào result
                 quá trình thực hiện nếu lỗi được ghi log nếu logger != None
             """
             while True:
                 func, args, kargs = self.tasks.get()
                 try:
-                    id = self.get_function_id(func, args, kargs)
+                    func_id = self.get_function_id(func, args, kargs)
                     result = func(*args, **kargs)
-                    self.results[id] = result
-                except SystemExit:
-                    pass
-                except:
-                    # Một trường hợp ngoại lệ đã xảy ra trong thread này
+                    self.results[func_id] = result
+                except Exception as ex:
                     if self.logger is None:
-                        raise
+                        print(ex)
                     else:
                         line = '=================================================================='
                         if args is ():
@@ -118,26 +130,26 @@ if __name__ == "__main__":
     # giao cho 8 công nhân đó 16 nhiệm vụ, các công nhân
     # nhận nhiệm vụ theo cơ chế hàng đợi(FIFO). chương trình
     # sẽ đợi cho đến khi tất cả các nhiệm vụ được hoàn thành.
-    pool = ThreadPool(num_workers=8)
+    t_pool = ThreadPool(num_workers=8)
 
 
-    # Chức năng được thực hiện trong một chủ đề
     def wait_delay(id_w, time):
+        # Chức năng được thực hiện trong một chủ đề
         print("(%d)id sleeping for (%d)sec" % (id_w, time))
-        sleep(time)
+        sleep(1)
         return time * 100
 
 
-    @pool.thread
+    @t_pool.thread
     def wait_delay2(time):
         print("wait_delay2 sleeping for (%d)sec" % time)
         sleep(int(time))
 
 
-    @pool.thread
+    @t_pool.thread
     def func_error2(time):
         print("func_error2 sleeping for (%d)sec" % time)
-        sleep(time)
+        sleep(0.1)
         raise Exception("error2 in thread")
 
 
@@ -147,28 +159,28 @@ if __name__ == "__main__":
 
     # gọi hàm đã chuyển thành thread trương chình không
     # chờ xử lý xong mà vẫn sẽ đi tiếp
-    wait_delay2(10)
+    wait_delay2(2)
 
     # Tạo sự chậm trễ ngẫu nhiên cho 15 nhiệm vụ.
     # một nhiệm vụ bao gồm mã và thời gian hoàn thành.
-    delays = [(i + 1, randrange(3, 7)) for i in range(15)]
+    t_delays = [(i + 1, randrange(3, 7)) for i in range(15)]
 
     # Thêm các công việc với số lượng lớn vào thread.
     # Hoặc bạn có thể sử dụng `pool.add_task` để thêm
     # các công việc đơn lẻ.
-    func_ids = pool.map(wait_delay, delays)
+    t_func_ids = t_pool.map(wait_delay, t_delays)
     # thêm một nhiệm vụ đơn lẻ
-    func_id = pool.add_task(wait_delay, 16, 8)
+    t_func_id = t_pool.add_task(wait_delay, 16, 8)
 
     # đợi cho đến khi tất cả nhiệm vụ được hoàn thành
-    results = pool.wait_all_tasks_done()
+    t_results = t_pool.wait_all_tasks_done()
     # kiểm tra kết quả
-    for id in func_ids:
-        print('function %s result %r' % (id, results[id]))
-    print('function %s result %r' % (func_id, results[func_id]))
+    for t_id in t_func_ids:
+        print('function %s result %r' % (t_id, t_results[t_id]))
+    print('function %s result %r' % (t_func_id, t_results[t_func_id]))
 
     # gọi hàm có lỗi
-    func_error2(10)
-    # pool.add_task(func_error)
+    func_error2(1)
+    t_pool.add_task(func_error)
 
     sleep(1)

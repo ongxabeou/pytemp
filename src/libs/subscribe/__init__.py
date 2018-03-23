@@ -91,13 +91,15 @@ class BasePerformer(object):
         pass
 
 
-thread_pool = ThreadPool(num_workers=8)
-
-
 @Singleton
 class SubscribeAssigner:
+    thread_pool = ThreadPool(num_workers=8)
+
     def __init__(self):
         self.performers = {}
+
+    def set_logger(self, logger):
+        self.thread_pool.set_logger(logger)
 
     def add_performer(self, performer: BasePerformer):
         self.performers[performer.__class__.__name__] = performer
@@ -110,17 +112,13 @@ class SubscribeAssigner:
             'kwargs': kwargs,
             'output': output
         }
-        self._owner_run(data)
+        for p in self.performers.values():
+            if data['label'] in p.get_capacities():
+                self._owner_run(data, p)
 
     @thread_pool.thread
-    def _owner_run(self, item):
-        for name, p in self.performers.items():
-            try:
-                if item['label'] in p.get_capacities():
-                    p.do(item)
-            except Exception as e:
-                print('execute performer %s error: %s' % (name, e))
-                pass
+    def _owner_run(self, item, p):
+        p.do(item)
 
 
 # ------------------Test------------------------
@@ -133,8 +131,9 @@ if __name__ == "__main__":
             return ['some_expensive_method']
 
         def do(self, item):
-            print(repr(item))
-            return True
+            raise Exception('error')
+            # print(repr(item))
+            # return True
 
 
     SubscribeAssigner().add_performer(TestPerformer())
@@ -161,15 +160,15 @@ if __name__ == "__main__":
     class TestCache:
         # @staticmethod
         @subscribe(label='some_expensive_method', entity_id_index=0)
-        def test(self, x, y=1):
-            print("TestCache::test param %s" % x)
-            return x + y
+        def test(self, x, y=1, z=''):
+            print("TestCache::test param %s %s" % (x, z))
+            return int(x) + int(y)
 
 
     tc = TestCache()
-    tt = tc.test(1, 1)
+    tt = tc.test(1, 1, '3')
     tt += tc.test(2, y=1)
-    tt += tc.test(x=2, y=1)
-    print(tt)
+    tt += tc.test(3, y=1)
+    print('tt=', tt)
 
-    sleep(0.2)
+    sleep(20)
