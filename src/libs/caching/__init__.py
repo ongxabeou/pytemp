@@ -64,9 +64,6 @@ class LruCache:
         return wrapper
 
 
-lru_local_cache = LruCache()
-
-
 class LRUCachedFunction(object):
     """
     Một chức năng ghi nhớ, được hỗ trợ bởi một bộ nhớ cache LRU.
@@ -423,6 +420,8 @@ class RedisCacheDict:
         if a_range > 0:
             self._redis.delete(keys[0:a_range])
 
+
+lru_local_cache = LruCache()
 
 if __name__ == "__main__":
     __store_type = STORE_TYPE.REDIS

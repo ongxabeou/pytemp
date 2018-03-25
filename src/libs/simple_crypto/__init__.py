@@ -62,6 +62,11 @@ class SimpleCrypto(object):
                            'set for private_key_file_path or  public_key_file_path')
 
     def encrypt(self, raw):
+        """
+        mã hoá một nội dung bytes hoặc string.
+        :param raw: nội dung cần mã hoá
+        :return: trả về mảng bytes đã mã hoá
+        """
         if self.algorithm == CRYPTO_ALGORITHM.AES:
             key = hashlib.sha256(self.password.encode()).digest()
             raw = self._pad(raw, 16)
@@ -83,6 +88,11 @@ class SimpleCrypto(object):
             raise NotImplementedError('algorithm %s' % self.algorithm)
 
     def decrypt(self, enc):
+        """
+        giải mã một nội dung bytes hoặc string.
+        :param enc: nội dung cần giải mã
+        :return: trả về mảng bytes đã giải mã
+        """
         if self.algorithm == CRYPTO_ALGORITHM.AES:
             key = hashlib.sha256(self.password.encode()).digest()
             iv = enc[:AES.block_size]
@@ -127,7 +137,7 @@ class SimpleCrypto(object):
         if private_key_file_path and public_key_file_path:
             if os.path.isfile(private_key_file_path):
                 raise PublicKeyFileExists('public key file not exists')
-            SimpleCrypto.create_directories(True, private_key_file_path, public_key_file_path)
+            SimpleCrypto._create_directories(True, private_key_file_path, public_key_file_path)
             with open(private_key_file_path, 'w') as private_file:
                 private_file.write(private.decode('utf-8'))
             with open(public_key_file_path, 'w') as public_file:
@@ -136,7 +146,7 @@ class SimpleCrypto(object):
         return private, public
 
     @staticmethod
-    def create_directories(for_private_key=True, private_key_file_path=None, public_key_file_path=None):
+    def _create_directories(for_private_key=True, private_key_file_path=None, public_key_file_path=None):
         public_key_path = public_key_file_path.rsplit('/', 1)[0]
         if not os.path.exists(public_key_path):
             os.makedirs(public_key_path)
