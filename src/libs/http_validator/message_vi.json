@@ -1,67 +1,67 @@
 {
   "validator": {
-    "err_message": "failed validation",
-    "not_message": "failed validation"
+    "err_message": "xác nhận không thành công",
+    "not_message": "xác nhận không thành công"
   },
   "in": {
-    "err_message": "must be one of %r",
-    "not_message": "must not be one of %r"
+    "err_message": "phải là một trong %r",
+    "not_message": "không được là một trong %r"
   },
   "range": {
-    "err_message": "must fall between %s and %s",
-    "not_message": "must not fall between %s and %s"
+    "err_message": "phải nằm giữa %s và %s",
+    "not_message": "không được nằm giữa %s và %s"
   },
   "equals": {
-    "err_message": "must be equal to %r",
-    "not_message": "must not be equal to %r"
+    "err_message": "phải bằng %r",
+    "not_message": "không được bằng %r"
   },
   "blank": {
-    "err_message": "must be an empty string",
-    "not_message": "must not be an empty string"
+    "err_message": "phải là một chuỗi rỗng",
+    "not_message": "không được là một chuỗi rỗng"
   },
   "truthy": {
-    "err_message": "must be True-equivalent value",
-    "not_message": "must be False-equivalent value"
+    "err_message": "phải là giá trị True-equivalent",
+    "not_message": "phải là giá trị False-equivalent"
   },
   "instance_of": {
-    "err_message": "must be an instance of %s or its subclasses",
-    "not_message": "must not be an instance of %s or its subclasses"
+    "err_message": "phải là một thể hiện của %s hoặc các lớp con của nó",
+    "not_message": "không phải là một thể hiện của %s hoặc các lớp con của nó"
   },
   "subclass_of": {
-    "err_message": "must be a subclass of %s",
-    "not_message": "must not be a subclass of %s"
+    "err_message": "phải là một phân lớp của %s",
+    "not_message": "không phải là một phân lớp của %s"
   },
   "pattern": {
-    "err_message": "must match regex pattern %s",
-    "not_message": "must not match regex pattern %s"
+    "err_message": "phải phù hợp với mô hình regex %s",
+    "not_message": "không được khớp với mẫu regex %s"
   },
   "length": {
-    "maximum": "must be at most {0} elements in length",
-    "minimum": "must be at least {0} elements in length",
-    "range": "must{0}be between {1} and {2} elements in length"
+    "maximum": "chiều dài tối đa phải không vượt quá {0} phần tử",
+    "minimum": "chiều dài thiểu đa phải ít hơn {0} phần tử",
+    "range": "chiều dài {0} nằm giữa {1} và {2} phần tử"
   },
   "contains": {
-    "err_message": "must contain {0}",
-    "not_message": "must not contain {0}"
+    "err_message": "phải chứa {0}",
+    "not_message": "không được chứa {0}"
   },
   "phone_number": {
-    "err_message": "must match regex pattern example (098) 883 0588 or (098).883.0588 or (098)-883-0588 or 098-883-0588 or 098 883 0588 or 0988830588",
-    "not_message": "must not match regex pattern %s"
+    "err_message": "phải phù hợp với mô hình mẫu regex ví dụ (098) 883 0588 hoặc (098) .883.0588 hoặc (098) -883-0588 hoặc 098-883-0588 hoặc 098 883 0588 hoặc 0988830588",
+    "not_message": "không được khớp với mẫu regex %s"
   },
   "email": {
-    "err_message": "must match regex pattern example lytuananh2003@gmail.com",
-    "not_message": "must not match regex pattern %s"
+    "err_message": "phải phù hợp với mẫu regex ví dụ lytuananh2003@gmail.com",
+    "not_message": "không được khớp với mẫu regex %s"
   },
   "date_time": {
-    "err_message": "must match regex pattern example: 2017-04-30 19:59:00",
-    "not_message": "must not match regex pattern %s"
+    "err_message": "phải phù hợp với mô hình mẫu regex ví dụ 2017-04-30 19:59:00",
+    "not_message": "không được khớp với mẫu regex %s"
   },
   "unicode": {
-    "err_message": "must be unicode value",
-    "not_message": "must be not unicode value"
+    "err_message": "phải là giá trị unicode",
+    "not_message": "không phải là giá trị unicode"
   },
   "password": {
-    "err_message": "Invalid new password, password needed:contains at least 8 characters,contains at least one number,Contains at least 1 lowercase letter (a-z), contain at least 1 capital letter (A-Z),contains only 0-9a-zA-Z. pattern: %s",
-    "not_message": "Invalid new password, password not needed:contains at least 8 characters,contains at least one number,Contains at least 1 lowercase letter (a-z), contain at least 1 capital letter (A-Z),contains only 0-9a-zA-Z. pattern: %s"
+    "err_message": "Mật khẩu mới, cần mật khẩu: chứa ít nhất 8 ký tự, chứa ít nhất một số, Chứa ít nhất 1 chữ thường (az), chứa ít nhất 1 chữ hoa (AZ), chỉ chứa 0-9a- zA-Z mẫu: %s",
+    "not_message": "Mật khẩu mới không hợp lệ, mật khẩu không cần thiết: chứa ít nhất 8 ký tự, chứa ít nhất một số, Chứa ít nhất 1 chữ thường (az), chứa ít nhất 1 chữ hoa (AZ), chỉ chứa 0-9a -zA-Z mẫu: %s"
   }
 }
