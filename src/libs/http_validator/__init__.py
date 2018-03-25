@@ -63,8 +63,8 @@ def _get_lang():
         param = request.args.get('lang')
         if param and param not in ('vi', 'en'):
             param = 'en'
-    except Exception as ex:
-        print(ex)
+    except Exception as lex:
+        print(lex)
         pass
 
     return __lang_dict_en if param == 'en' else __lang_dict_vi
