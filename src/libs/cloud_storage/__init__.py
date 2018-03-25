@@ -241,7 +241,8 @@ class Object:
         self.link = blob.public_url
         self.name = blob.name
         self.content_type = blob.content_type
-        self.resource_model: BaseResourceModel = None
+        self.resource_model: BaseResourceModel
+        self.resource_model = None
 
     def _get_content_type(self, content_type, filename=None):
         """Determine the content type from the current object.
