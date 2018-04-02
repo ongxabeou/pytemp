@@ -13,6 +13,7 @@
     phải thuộc trách nhiệm của mình không, nếu phải thì thực thi ngược lại thì bỏ qua.
 """
 from abc import abstractmethod
+from functools import wraps
 
 from src.libs.singleton import Singleton
 from src.libs.thread_pool import ThreadPool
@@ -30,25 +31,56 @@ def subscribe(label=None, entity_id_index=0):
     # >>> f(3)
     # 3
     """
-
     def wrapper(func):
         return SubscribeFunction(func, label, entity_id_index)
 
     return wrapper
 
 
+def subscribe_class(label=None, entity_id_index=0):
+    """
+    # >>> @subscribe('f', 0)
+    # ... def f(x):
+    # ...    print "Calling f(" + str(x) + ")"
+    # ...    return x
+    # >>> f(3)
+    # Calling f(3)
+    # 3
+    # >>> f(3)
+    # 3
+    """
+
+    def wrapper(func):
+        @wraps(func)
+        def wrapped(self, *args, **kwargs):
+            value = func(self, *args, **kwargs)
+            name = label if label else func.__name__
+            entity_id = args[entity_id_index] if len(args) > entity_id_index else None
+            if entity_id is None and len(kwargs.items()) > 0:
+                i = len(args)
+                for key, value in kwargs.items():
+                    if i == entity_id_index:
+                        entity_id = value
+                        break
+                    i += 1
+            SubscribeAssigner().give(name, entity_id, list(args), kwargs, value)
+            return value
+        return wrapped
+    return wrapper
+
 class SubscribeFunction:
-    def __init__(self, a_function, label=None, entity_id_index=0):
+    def __init__(self, a_function, this, label=None, entity_id_index=0):
         self.function = a_function
         self.__name__ = label if label else self.function.__name__
         self.entity_id_index = entity_id_index
+        self.this = this
 
     def __call__(self, *args, **kwargs):
         try:
             value = self.function(*args, **kwargs)
         except TypeError as e:
             if 'missing 1 required positional argument' in str(e):
-                value = self.function(0, *args, **kwargs)
+                value = self.function(self.this, *args, **kwargs)
             else:
                 raise e
 
