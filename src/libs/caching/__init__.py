@@ -14,6 +14,7 @@ from collections import OrderedDict
 import time
 import threading
 import weakref
+from functools import wraps
 
 import redis
 
@@ -60,6 +61,55 @@ class LruCache:
 
         def wrapper(func):
             return LRUCachedFunction(func, prefix_key, self.cache)
+
+        return wrapper
+
+    def add_for_class(self, prefix_key=None):
+        """
+        # >>> @lru_cache_function(3, 1)
+        # ... def f(x):
+        # ...    print "Calling f(" + str(x) + ")"
+        # ...    return x
+        # >>> f(3)
+        # Calling f(3)
+        # 3
+        # >>> f(3)
+        # 3
+        """
+
+        def wrapper(func):
+            me = self
+
+            @wraps(func)
+            def wrapped(my_self, *args, **kwargs):
+                if me.cache is None:
+                    if me.store_type == STORE_TYPE.LOCAL:
+                        me.cache = LRUCacheDict()
+                    elif me.store_type == STORE_TYPE.REDIS:
+                        if me.config_file_name is None:
+                            raise ValueError('config_file_name must not be None if store_type is REDIS')
+                        self.cache = RedisCacheDict(me.config_file_name)
+                    else:
+                        raise NotImplementedError('store_type=%s' % me.store_type)
+                name = prefix_key if prefix_key else func.__name__
+
+                key = name + "#" + repr((args, kwargs))
+
+                try:
+                    # print("cache key", key)
+                    return me.cache[key]
+                except KeyError:
+                    try:
+                        value = func(my_self, *args, **kwargs)
+                    except TypeError as e:
+                        if 'missing 1 required positional argument' in str(e):
+                            raise KeyError('you must use add function')
+                        else:
+                            raise e
+                    me.cache[key] = value
+                    return value
+
+            return wrapped
 
         return wrapper
 

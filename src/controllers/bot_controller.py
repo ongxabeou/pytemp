@@ -78,7 +78,7 @@ class BotController(BaseController):
         return BotConfigRepository().get(self.bot_id)
         # return BotConfigRepository().set(self.bot_id, bot_config)
 
-    @lru_redis_cache.add(prefix_key=PREFIX_CACHE_KEY.GET_INTENT)
+    @lru_redis_cache.add_for_class(prefix_key=PREFIX_CACHE_KEY.GET_INTENT)
     def get(self):
         return BotConfigRepository().get(self.bot_id)
 
