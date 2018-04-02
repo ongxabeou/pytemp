@@ -177,7 +177,7 @@ class LRUCachedFunction(object):
                 value = self.function(*args, **kwargs)
             except TypeError as e:
                 if 'missing 1 required positional argument' in str(e):
-                    value = self.function(0, *args, **kwargs)
+                    raise KeyError('you must use add_for_class function')
                 else:
                     raise e
             self.cache[key] = value
