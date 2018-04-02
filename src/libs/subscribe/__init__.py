@@ -37,7 +37,7 @@ def subscribe(label=None, entity_id_index=0):
     return wrapper
 
 
-def subscribe_class(label=None, entity_id_index=0):
+def subscribe_for_class(label=None, entity_id_index=0):
     """
     # >>> @subscribe('f', 0)
     # ... def f(x):
@@ -69,18 +69,17 @@ def subscribe_class(label=None, entity_id_index=0):
     return wrapper
 
 class SubscribeFunction:
-    def __init__(self, a_function, this, label=None, entity_id_index=0):
+    def __init__(self, a_function, label=None, entity_id_index=0):
         self.function = a_function
         self.__name__ = label if label else self.function.__name__
         self.entity_id_index = entity_id_index
-        self.this = this
 
     def __call__(self, *args, **kwargs):
         try:
             value = self.function(*args, **kwargs)
         except TypeError as e:
             if 'missing 1 required positional argument' in str(e):
-                value = self.function(self.this, *args, **kwargs)
+                value = self.function(0, *args, **kwargs)
             else:
                 raise e
 

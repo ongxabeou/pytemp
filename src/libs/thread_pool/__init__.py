@@ -27,7 +27,7 @@ class ThreadPool:
         self._tasks = Queue(num_workers)
         self._results = {}
         if logger is None:
-            logger = logging.getLogger()
+            logger = logging.getLogger('ThreadPool-Logger')
             logger.setLevel(logging.DEBUG)
             ch = logging.StreamHandler(sys.stdout)
             ch.setLevel(logging.DEBUG)
