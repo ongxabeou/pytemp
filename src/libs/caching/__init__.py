@@ -359,7 +359,7 @@ class LRUCacheDict(object):
         t = int(time.time())
         # Delete expired
         next_expire = None
-        keys = copy.copy(self.__expire_times.keys())
+        keys = list(self.__expire_times.keys())
         for k in keys:
             value = self.__expire_times.get(k, None)
             if value and value < t:
@@ -370,7 +370,7 @@ class LRUCacheDict(object):
 
         # If we have more than self.max_size items, delete the oldest
         while len(self.__values) > self.max_size:
-            keys = copy.copy(self.__access_times.keys())
+            keys = list(self.__access_times.keys())
             for k in keys:
                 self.__delete__(k)
                 break
