@@ -163,7 +163,10 @@ class LRUCachedFunction(object):
             else:
                 raise NotImplementedError('store_type=%s' % store_type)
         self.function = a_function
-        self.__name__ = prefix_key if prefix_key else self.function.__name__
+        if isinstance(self.function, staticmethod):
+            self.__name__ = prefix_key if prefix_key else self.function.__func__.__name__
+        else:
+            self.__name__ = prefix_key if prefix_key else self.function.__name__
 
     def __call__(self, *args, **kwargs):
         # Về nguyên tắc một repr python (...) không nên trả về bất kỳ ký tự '#'.
@@ -174,7 +177,12 @@ class LRUCachedFunction(object):
             return self.cache[key]
         except KeyError:
             try:
-                value = self.function(*args, **kwargs)
+                # khi chạy cython phải thực hiện call hàm static theo kiêu meta-class.
+                # còn trên python gọi như bình thường
+                if isinstance(self.function, staticmethod):
+                    value = self.function.__func__(*args, **kwargs)
+                else:
+                    value = self.function(*args, **kwargs)
             except TypeError as e:
                 if 'missing 1 required positional argument' in str(e):
                     raise KeyError('you must use add_for_class function')
@@ -350,7 +358,7 @@ class LRUCacheDict(object):
         t = int(time.time())
         # Delete expired
         next_expire = None
-        for k in self.__expire_times:
+        for k in self.__expire_times.keys():
             if self.__expire_times[k] < t:
                 self.__delete__(k)
             else:
@@ -359,7 +367,7 @@ class LRUCacheDict(object):
 
         # If we have more than self.max_size items, delete the oldest
         while len(self.__values) > self.max_size:
-            for k in self.__access_times:
+            for k in self.__access_times.keys():
                 self.__delete__(k)
                 break
         if not (next_expire is None):
@@ -482,9 +490,15 @@ if __name__ == "__main__":
 
     class TestCache:
         # @staticmethod
-        @lru_cache.add()
+        @lru_cache.add_for_class()
         def test(self, x):
             print("TestCache::test param %s" % x)
+            return x + 1
+
+        @staticmethod
+        @lru_cache.add()
+        def test_static(x):
+            print("TestCache::test_static test param %s" % x)
             return x + 1
 
 
@@ -537,4 +551,6 @@ if __name__ == "__main__":
     tt = tc.test(1)
     tt += tc.test(2)
     tt += tc.test(2)
+    tt += TestCache.test_static(2)
+    tt += tc.test_static(2)
     print(tt)
