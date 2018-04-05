@@ -1,7 +1,20 @@
+#!/usr/bin/python
+# -*- coding: utf8 -*-
+""" Author: Ly Tuan Anh
+    github nick: ongxabeou
+    mail: lytuananh2003@gmail.com
+    Date created: 2018/03/20
+
+    SimpleQueue là thư viện hỗ trợ việc quả lý các RabitMQ thông qua một SimpleQueueFactory
+    để bảo đảm các connection vào RabitMQ được tối ưu bằng cách tái xử dụng lại cho mỗi lần push.
+"""
+
 import configparser
 import json
+from functools import wraps
 
 import pika
+import time
 
 from src.libs.singleton import Singleton
 
@@ -41,7 +54,6 @@ class SimpleQueue:
     def _get_section_map(self, section):
         if section in self._sections:
             return self._sections[section]
-
         local_dic = {}
         options = self.config.options(section)
         for option in options:
@@ -62,9 +74,11 @@ class SimpleQueue:
         while not success and try_push > 0:
             success = self._owner_push(message)
             if not success:
+                time.sleep(0.1)
                 self.connection.close()
                 self._create_connection()
                 try_push -= 1
+
         if not success:
             raise KeyError('can not push message to queue [%s]', self.queue_name)
 
@@ -83,10 +97,78 @@ class SimpleQueueFactory:
         self.queues = {}
 
     def add(self, config_file_name, queue_name, call_back_function=None):
+        """
+        hàm tạo một kết nối đến RabitMQ và đưa vào kho quản lý
+        :param config_file_name:
+        :param queue_name:
+        :param call_back_function:
+        :return:
+        """
         sq = self.queues.get(queue_name, None)
         if sq is None:
             sq = SimpleQueue(config_file_name, queue_name, call_back_function)
             self.queues[queue_name] = sq
+        return sq
 
     def get(self, queue_name):
-        return self.queues.get(queue_name, None)
+        try:
+            return self.queues[queue_name]
+        except KeyError:
+            raise KeyError('you must add queue[%s] into factory before get queue' % queue_name)
+
+    def push_to_queue(self, queue_name):
+        def wrapper(func):
+            @wraps(func)
+            def wrapped(*args, **kwargs):
+                value = func(*args, **kwargs)
+                sq = self.queues.get(queue_name)
+                sq.push(value)
+                return value
+
+            return wrapped
+
+        return wrapper
+
+    def push_to_queue_for_class(self, queue_name):
+        def wrapper(func):
+            @wraps(func)
+            def wrapped(my_self, *args, **kwargs):
+                value = func(my_self, *args, **kwargs)
+                sq = self.queues.get(queue_name)
+                sq.push(value)
+                return value
+
+            return wrapped
+
+        return wrapper
+
+
+# ------------------Test------------------------
+if __name__ == '__main__':
+    # hướng dẫn cách dùng Simple Queue
+    # tạo đối tượng queue
+    sqf = SimpleQueueFactory()
+    # 'đường dẫn đến file câu hình của project' và tên queue
+    sqf.add('../../../resources/configs/dmai.conf', 'queue_name')
+    # lấy queue để sử dụng
+    t_sq = SimpleQueueFactory().get('queue_name')
+    # đẩy một item vào queue
+    t_sq.push("message")
+
+    @sqf.push_to_queue('queue_name')
+    def test_msg():
+        return 'test_msg'
+
+
+    print(test_msg())
+
+
+    class TestClass:
+        msq = 'test_msg_class'
+
+        @sqf.push_to_queue_for_class('queue_name')
+        def test_msg(self):
+            return self.msq
+
+
+    print(TestClass().test_msg())
