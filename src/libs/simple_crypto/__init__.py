@@ -275,7 +275,9 @@ if __name__ == '__main__':
 
     print('----------------------CRYPTO AES---------------------------')
     ac = SimpleCrypto()
-    ac.make_aes_key()
+    key = ac.make_aes_key()
+    print("CRYPTO AES by key:", key)
+    ac.set_aes_key(key)
     t_text = ac.encrypt(bs)
     print(t_text)
     print(ac.decrypt(t_text))
