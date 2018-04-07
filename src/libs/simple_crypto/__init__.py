@@ -3,11 +3,10 @@ import random
 import string
 import typing
 
-from asn1crypto.keys import RSAPublicKey
 from cryptography.fernet import Fernet
+from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.primitives.asymmetric import rsa, padding
-from cryptography.hazmat.backends import default_backend
 
 DEFAULT_MODULUS = 4096
 
