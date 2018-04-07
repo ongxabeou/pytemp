@@ -80,7 +80,7 @@ class ThreadPool:
     def thread_for_class(self, f):
         @wraps(f)
         def decorated(me, *args, **kargs):
-            args = me + args
+            args = (me,) + args
             return self.add_task(f, *args, **kargs)
 
         return decorated
