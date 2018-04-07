@@ -32,8 +32,8 @@ class SimpleQueue:
         self.config = configparser.ConfigParser()
         self.config.read(config_file_name, 'utf-8')
         self.queue_name = queue_name
-        self._create_connection()
         self._call_back = call_back_function
+        self._create_connection()
 
     def _create_connection(self):
         host = self._get_section_map(QUEUE_MODE.__name__)[QUEUE_MODE.HOST]
@@ -46,7 +46,7 @@ class SimpleQueue:
         self.channel = self.connection.channel()
         self.channel.queue_declare(queue=self.queue_name, durable=True)
 
-        if self._call_back:
+        if self._call_back is not None:
             self.channel.basic_qos(prefetch_count=1)
             self.channel.basic_consume(self._call_back, queue=self.queue_name)
 
