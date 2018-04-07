@@ -49,7 +49,13 @@ class SimpleQueue:
         if self._call_back:
             self.channel.basic_qos(prefetch_count=1)
             self.channel.basic_consume(self._call_back, queue=self.queue_name)
-            self.channel.start_consuming()
+
+    def start(self):
+        self.channel.start_consuming()
+
+    def stop(self):
+        self.channel.stop_consuming()
+        self.connection.close()
 
     def _get_section_map(self, section):
         if section in self._sections:
@@ -154,6 +160,7 @@ if __name__ == '__main__':
     t_sq = SimpleQueueFactory().get('queue_name')
     # đẩy một item vào queue
     t_sq.push("message")
+
 
     @sqf.push_to_queue('queue_name')
     def test_msg():
