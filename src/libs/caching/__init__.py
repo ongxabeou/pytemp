@@ -10,13 +10,12 @@
     LRU Cache sẽ lưu lại trên RAM hoặc Redis
 """
 import configparser
-from collections import OrderedDict
-import time
 import threading
+import time
 import weakref
+from collections import OrderedDict
 from functools import wraps
 
-import copy
 import redis
 
 
@@ -34,6 +33,9 @@ class LruCache:
                  expiration=EXPIRATION_DEFAULT,
                  store_type=STORE_TYPE.LOCAL,
                  config_file_name=None):
+        """
+        Một chức năng ghi nhớ, được hỗ trợ bởi một bộ nhớ cache LRU.
+        """
         self.max_size = max_size
         self.expiration = expiration
         self.store_type = store_type
@@ -46,6 +48,42 @@ class LruCache:
             self.cache = RedisCacheDict(self.config_file_name, self.max_size, self.expiration)
         else:
             raise NotImplementedError('store_type=%s' % self.store_type)
+
+    def _wrapper_function(self, prefix_key, func, me, *args, **kwargs, ):
+        if self.cache is None:
+            if self.store_type == STORE_TYPE.LOCAL:
+                self.cache = LRUCacheDict()
+            elif self.store_type == STORE_TYPE.REDIS:
+                if self.config_file_name is None:
+                    raise ValueError('config_file_name must not be None if store_type is REDIS')
+                self.cache = RedisCacheDict(self.config_file_name)
+            else:
+                raise NotImplementedError('store_type=%s' % self.store_type)
+
+        if isinstance(func, staticmethod):
+            name = prefix_key if prefix_key else func.__func__.__name__
+        else:
+            name = prefix_key if prefix_key else func.__name__
+
+        key = name + "#" + repr((args, kwargs))
+
+        try:
+            # print("cache key", key)
+            return self.cache[key]
+        except KeyError:
+            try:
+                if me is None:
+                    value = func(*args, **kwargs)
+                else:
+                    value = func(me, *args, **kwargs)
+            except TypeError as e:
+                if 'missing 1 required positional argument' in str(e):
+                    raise KeyError('you must use add function')
+                else:
+                    raise e
+            self.cache[key] = value
+
+            return value
 
     def add(self, prefix_key=None):
         """
@@ -61,7 +99,11 @@ class LruCache:
         """
 
         def wrapper(func):
-            return LRUCachedFunction(func, prefix_key, self.cache)
+            @wraps(func)
+            def wrapped(*args, **kwargs):
+                return self._wrapper_function(prefix_key, func, None, *args, **kwargs)
+
+            return wrapped
 
         return wrapper
 
@@ -83,114 +125,11 @@ class LruCache:
 
             @wraps(func)
             def wrapped(my_self, *args, **kwargs):
-                if me.cache is None:
-                    if me.store_type == STORE_TYPE.LOCAL:
-                        me.cache = LRUCacheDict()
-                    elif me.store_type == STORE_TYPE.REDIS:
-                        if me.config_file_name is None:
-                            raise ValueError('config_file_name must not be None if store_type is REDIS')
-                        self.cache = RedisCacheDict(me.config_file_name)
-                    else:
-                        raise NotImplementedError('store_type=%s' % me.store_type)
-                name = prefix_key if prefix_key else func.__name__
-
-                key = name + "#" + repr((args, kwargs))
-
-                try:
-                    # print("cache key", key)
-                    return me.cache[key]
-                except KeyError:
-                    try:
-                        value = func(my_self, *args, **kwargs)
-                    except TypeError as e:
-                        if 'missing 1 required positional argument' in str(e):
-                            raise KeyError('you must use add function')
-                        else:
-                            raise e
-                    me.cache[key] = value
-                    return value
+                return me._wrapper_function(prefix_key, func, my_self, *args, **kwargs)
 
             return wrapped
 
         return wrapper
-
-
-class LRUCachedFunction(object):
-    """
-    Một chức năng ghi nhớ, được hỗ trợ bởi một bộ nhớ cache LRU.
-
-    >>> def f(x):
-    ...    print "Calling f(" + str(x) + ")"
-    ...    return x
-    >>> f = LRUCachedFunction(f, LRUCacheDict(max_size=3, expiration=3) )
-    >>> f(3)
-    Calling f(3)
-    3
-    >>> f(3)
-    3
-    >>> import time
-    >>> time.sleep(4) #Cache should now be empty, since expiration time is 3.
-    >>> f(3)
-    Calling f(3)
-    3
-    >>> f(4)
-    Calling f(4)
-    4
-    >>> f(5)
-    Calling f(5)
-    5
-    >>> f(3) #Still in cache, so no print statement. At this point, 4 is the least recently used.
-    3
-    >>> f(6)
-    Calling f(6)
-    6
-    >>> f(4) #No longer in cache - 4 is the least recently used, and there are at least 3 others
-    # items in cache [3,4,5,6].
-    Calling f(4)
-    4
-
-    """
-
-    def __init__(self, a_function, prefix_key=None, cache=None, store_type=STORE_TYPE.LOCAL, config_file_name=None):
-        if cache:
-            self.cache = cache
-        else:
-            if store_type == STORE_TYPE.LOCAL:
-                self.cache = LRUCacheDict()
-            elif store_type == STORE_TYPE.REDIS:
-                if config_file_name is None:
-                    raise ValueError('config_file_name must not be None if store_type is REDIS')
-                self.cache = RedisCacheDict(config_file_name)
-            else:
-                raise NotImplementedError('store_type=%s' % store_type)
-        self.function = a_function
-        if isinstance(self.function, staticmethod):
-            self.__name__ = prefix_key if prefix_key else self.function.__func__.__name__
-        else:
-            self.__name__ = prefix_key if prefix_key else self.function.__name__
-
-    def __call__(self, *args, **kwargs):
-        # Về nguyên tắc một repr python (...) không nên trả về bất kỳ ký tự '#'.
-        key = self.__name__ + "#" + repr((args, kwargs))
-
-        try:
-            # print("cache key", key)
-            return self.cache[key]
-        except KeyError:
-            try:
-                # khi chạy cython phải thực hiện call hàm static theo kiêu meta-class.
-                # còn trên python gọi như bình thường
-                if isinstance(self.function, staticmethod):
-                    value = self.function.__func__(*args, **kwargs)
-                else:
-                    value = self.function(*args, **kwargs)
-            except TypeError as e:
-                if 'missing 1 required positional argument' in str(e):
-                    raise KeyError('you must use add_for_class function')
-                else:
-                    raise e
-            self.cache[key] = value
-            return value
 
 
 def _lock_decorator(func):
@@ -489,30 +428,37 @@ if __name__ == "__main__":
     __store_type = STORE_TYPE.REDIS
     __file_config = ''
 
-    lru_cache = LruCache()
-
 
     class TestCache:
-        # @staticmethod
-        @lru_cache.add_for_class()
+        mess = "hello"
+
+        @lru_local_cache.add_for_class()
         def test(self, x):
-            print("TestCache::test param %s" % x)
+            print("TestCache::test param %s" % x, self.mess)
             return x + 1
 
         @staticmethod
-        @lru_cache.add()
+        @lru_local_cache.add()
         def test_static(x):
             print("TestCache::test_static test param %s" % x)
             return x + 1
 
 
-    @lru_cache.add()
+    tc = TestCache()
+    tt = tc.test(1)
+    tt += tc.test(2)
+    tt += tc.test(2)
+    tt += TestCache.test_static(2)
+    tt += tc.test_static(2)
+    print(tt)
+
+    @lru_local_cache.add()
     def some_expensive_method(x):
         print("Calling some_expensive_method(" + str(x) + ")")
         return x + 200
 
 
-    @lru_cache.add()
+    @lru_local_cache.add()
     def obj_some_expensive_method(x):
         print("Calling some_expensive_method(" + str(x) + ")")
         return {"title": "data", "value": x}
