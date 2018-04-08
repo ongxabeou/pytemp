@@ -77,14 +77,6 @@ class ThreadPool:
 
         return decorated
 
-    def thread_for_class(self, f):
-        @wraps(f)
-        def decorated(me, *args, **kargs):
-            args = (me,) + args
-            return self.add_task(f, *args, **kargs)
-
-        return decorated
-
     class Worker(Thread):
         """ Thread thực hiện nhiệm vụ từ một hàng đợi nhiệm vụ nhất định """
 
