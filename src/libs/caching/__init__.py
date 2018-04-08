@@ -49,7 +49,7 @@ class LruCache:
         else:
             raise NotImplementedError('store_type=%s' % self.store_type)
 
-    def _wrapper_function(self, prefix_key, func, me, *args, **kwargs, ):
+    def _wrapper_function(self, prefix_key, func, me=None, *args, **kwargs, ):
         if self.cache is None:
             if self.store_type == STORE_TYPE.LOCAL:
                 self.cache = LRUCacheDict()
@@ -71,18 +71,12 @@ class LruCache:
             # print("cache key", key)
             return self.cache[key]
         except KeyError:
-            try:
-                if me is None:
-                    value = func(*args, **kwargs)
-                else:
-                    value = func(me, *args, **kwargs)
-            except TypeError as e:
-                if 'missing 1 required positional argument' in str(e):
-                    raise KeyError('you must use add function')
-                else:
-                    raise e
-            self.cache[key] = value
+            if me:
+                value = func(me, *args, **kwargs)
+            else:
+                value = func(*args, **kwargs)
 
+            self.cache[key] = value
             return value
 
     def add(self, prefix_key=None):
@@ -101,7 +95,7 @@ class LruCache:
         def wrapper(func):
             @wraps(func)
             def wrapped(*args, **kwargs):
-                return self._wrapper_function(prefix_key, func, None, *args, **kwargs)
+                return self._wrapper_function(prefix_key, func, *args, **kwargs)
 
             return wrapped
 
@@ -121,11 +115,10 @@ class LruCache:
         """
 
         def wrapper(func):
-            me = self
-
             @wraps(func)
-            def wrapped(my_self, *args, **kwargs):
-                return me._wrapper_function(prefix_key, func, my_self, *args, **kwargs)
+            def wrapped(me, *args, **kwargs):
+                args = (me,) + args
+                return self._wrapper_function(prefix_key, func, *args, **kwargs)
 
             return wrapped
 
@@ -432,9 +425,9 @@ if __name__ == "__main__":
     class TestCache:
         mess = "hello"
 
-        @lru_local_cache.add_for_class()
+        @lru_local_cache.add()
         def test(self, x):
-            print("TestCache::test param %s" % x, self.mess)
+            print("TestCache::test param %s %s" % (x, self.mess))
             return x + 1
 
         @staticmethod
@@ -451,6 +444,7 @@ if __name__ == "__main__":
     tt += TestCache.test_static(2)
     tt += tc.test_static(2)
     print(tt)
+
 
     @lru_local_cache.add()
     def some_expensive_method(x):
@@ -496,11 +490,3 @@ if __name__ == "__main__":
     obj['title'] = "new value"
 
     print(obj_some_expensive_method(3))
-
-    tc = TestCache()
-    tt = tc.test(1)
-    tt += tc.test(2)
-    tt += tc.test(2)
-    tt += TestCache.test_static(2)
-    tt += tc.test_static(2)
-    print(tt)
