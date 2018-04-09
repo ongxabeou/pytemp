@@ -23,14 +23,14 @@ class TestScheduler(BaseScheduler):
         1. scheduler chỉ thực hiện công việc một lần duy nhất.
             return None
         2. scheduler sẽ thực hiện mỗi 10 phút một lần.
-            return schedule.every(10).minutes.do(job)
+            return schedule.every(10).minutes
         3. scheduler sẽ thực hiện hàng ngày vào lúc 10h 30 phút.
-            return schedule.every().day.at("10:30").do(job)
+            return schedule.every().day.at("10:30")
         4. scheduler sẽ thực hiện sau mỗi giờ.
-            return schedule.every().hour.do(job)
+            return schedule.every().hour
         5. scheduler sẽ thực hiện vào mỗi thứ 2 hàng tuần.
-            return schedule.every().monday.do(job)
+            return schedule.every().monday
         6. scheduler sẽ thực hiện vào mỗi thứ 5 hàng tuần và vào lúc 13h 15'.
-            return schedule.every().wednesday.at("13:15").do(job)
+            return schedule.every().wednesday.at("13:15")
         """
         return schedule.every(10).minutes()
