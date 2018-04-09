@@ -33,4 +33,4 @@ class TestScheduler(BaseScheduler):
         6. scheduler sẽ thực hiện vào mỗi thứ 5 hàng tuần và vào lúc 13h 15'.
             return schedule.every().wednesday.at("13:15")
         """
-        return schedule.every(10).minutes()
+        return schedule.every(10).minutes
