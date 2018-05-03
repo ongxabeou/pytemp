@@ -112,6 +112,9 @@ class ThreadPool:
                 finally:
                     # Đánh dấu công việc này là xong, dù có ngoại lệ xảy ra hay không
                     self.tasks.task_done()
+                    if len(self.results.keys) > 99:
+                        key = self.results.keys[0]
+                        self.results.__delete__(key)
 
         @staticmethod
         def get_function_id(func, args, kargs=None):
