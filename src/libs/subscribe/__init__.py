@@ -31,6 +31,7 @@ def subscribe(label=None, entity_id_index=0):
     # >>> f(3)
     # 3
     """
+
     def wrapper(func):
         return SubscribeFunction(func, label, entity_id_index)
 
@@ -65,8 +66,11 @@ def subscribe_for_class(label=None, entity_id_index=0):
                     i += 1
             SubscribeAssigner().give(name, entity_id, list(args), kwargs, value)
             return value
+
         return wrapped
+
     return wrapper
+
 
 class SubscribeFunction:
     def __init__(self, a_function, label=None, entity_id_index=0):
