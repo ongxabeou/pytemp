@@ -116,6 +116,10 @@ class ThreadPool:
                         key = self.results.keys()[0]
                         self.results.__delete__(key)
 
+                    del func
+                    del args
+                    del kargs
+
         @staticmethod
         def get_function_id(func, args, kargs=None):
             identify = "{function} {agrs} ".format(
