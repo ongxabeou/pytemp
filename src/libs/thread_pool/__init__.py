@@ -109,12 +109,14 @@ class ThreadPool:
                         else:
                             self.logger.exception('Exception in thread %s\n%s :: %s with param %r' %
                                                   (line, str(datetime.datetime.now()), func.__name__, args))
+                        del line
                 finally:
                     # Đánh dấu công việc này là xong, dù có ngoại lệ xảy ra hay không
                     self.tasks.task_done()
                     if len(self.results.keys()) > 99:
                         key = self.results.keys()[0]
                         self.results.__delete__(key)
+                        del key
 
                     del func
                     del args
