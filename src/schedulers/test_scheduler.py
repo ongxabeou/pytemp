@@ -2,7 +2,7 @@
 import schedule
 import time
 
-from src.schedulers.base_scheduler import BaseScheduler
+from src.libs.job import BaseScheduler
 
 
 class TestScheduler(BaseScheduler):

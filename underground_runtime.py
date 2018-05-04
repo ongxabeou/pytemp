@@ -1,11 +1,13 @@
 import os
 
-os.environ['SM_HOME'], _ = os.path.split(os.path.abspath(__file__))
+os.environ['DMAI_HOME'], _ = os.path.split(os.path.abspath(__file__))
 
-from src.schedulers.scheduler_factory import SchedulerFactory
+from src.common.system_config import SystemConfig
+
+from src.libs.job import SchedulerFactory
 from src.schedulers.test_scheduler import TestScheduler
 
 if __name__ == '__main__':
-    fac = SchedulerFactory()
+    fac = SchedulerFactory(SystemConfig.logger)
     fac.add(TestScheduler())
     fac.run()

@@ -55,3 +55,11 @@ if __name__ == '__main__':
     # if len(gc.garbage) > 0:
     #     del gc.garbage[0].link, gc.garbage[:]
     # print("done")
+
+    line = '=================================================================='
+    print(line)
+    del line
+    try:
+        print(line)
+    except Exception as e:
+        print(e)

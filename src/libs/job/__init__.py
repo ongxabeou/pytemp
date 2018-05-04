@@ -1,25 +1,13 @@
-import logging
 from abc import abstractmethod
 
-import sys
-
-from src.common.lang_config import LANG
-from src.common.my_except import BaseMoError
-
-
-def _create_logger():
-    logger = logging.getLogger('ThreadPool-Logger')
-    logger.setLevel(logging.DEBUG)
-    ch = logging.StreamHandler(sys.stdout)
-    ch.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
-    return logger
+from src.libs.singleton import Singleton
+from src.libs.thread_pool import ThreadPool
+import schedule
+import time
 
 
 class BaseScheduler:
-    logger = _create_logger()
+    logger = None
 
     @abstractmethod
     def get_schedule(self):
@@ -56,5 +44,44 @@ class BaseScheduler:
         try:
             return self.owner_do()
         except Exception as e:
-            print(e)
-            return BaseMoError(LANG.INTERNAL_SERVER_ERROR).get_message()
+            if self.logger:
+                self.logger.exception("run job error:%s!" % e)
+            else:
+                print("run job error:%s!" % e)
+            return None
+
+
+@Singleton
+class SchedulerFactory:
+    thread_pool = ThreadPool(num_workers=8)
+
+    def __init__(self, logger=None):
+        self.schedulers = {}
+        self.tasks = {}
+        self.logger = logger
+
+    def add(self, scheduler: BaseScheduler, scheduler_name=None):
+        name = scheduler_name if scheduler_name else scheduler.__class__.__name__
+        sq = self.schedulers.get(name, None)
+        if sq is None:
+            scheduler.set_logger(self.logger)
+            the_schedule = scheduler.get_schedule()
+            if the_schedule:
+                the_schedule.do(scheduler.do)
+                self.schedulers[name] = scheduler
+            else:
+                self.tasks[name] = scheduler
+            return scheduler
+        return sq
+
+    def run(self):
+        for stack in self.tasks.values():
+            self.owner_run_scheduler(stack)
+
+        while True:
+            schedule.run_pending()
+            time.sleep(1)
+
+    @thread_pool.thread
+    def owner_run_scheduler(self, scheduler: BaseScheduler):
+        scheduler.do()
