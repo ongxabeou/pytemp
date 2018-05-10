@@ -117,10 +117,11 @@ class ThreadPool:
                         key = self.results.keys()[0]
                         self.results.__delete__(key)
                         del key
-
-                    del func
-                    del args
-                    del kargs
+                    # tạm comment out đoạn giải phóng này vì thấy có hiện tượng lỗi
+                    # cần theo dõi thêm để xem có hiên tượng memory leak không
+                    # del func
+                    # del args
+                    # del kargs
 
         @staticmethod
         def get_function_id(func, args, kargs=None):
