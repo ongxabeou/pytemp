@@ -55,9 +55,12 @@ class BaseScheduler:
 class SchedulerFactory:
     thread_pool = ThreadPool(num_workers=8)
 
-    def __init__(self, logger=None):
+    def __init__(self):
         self.schedulers = {}
         self.tasks = {}
+        self.logger = None
+
+    def set_logger(self, logger):
         self.logger = logger
 
     def add(self, scheduler: BaseScheduler, scheduler_name=None):
