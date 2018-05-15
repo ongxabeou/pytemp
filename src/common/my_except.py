@@ -97,7 +97,7 @@ class BaseMoError(Exception):
         try:
             if mod1 or mod4 or mod5:
                 body = str(request.data, 'utf-8')
-                if body == '' and request.method == 'POST':
+                if body is None or body == '' or body == b'':
                     body = str(request.form)
                 self.sys_conf.logger.debug(
                     'request_id: {request_id} \n HTTP/1.1 {method} {url}\n{headers}\n\nbody: {body}'.format(
