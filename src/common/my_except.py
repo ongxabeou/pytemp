@@ -86,6 +86,7 @@ class BaseMoError(Exception):
 
         if mod1 or mod2 or mod3 or mod4 or mod5:
             self.sys_conf.logger.debug('==================================================================')
+            self.sys_conf.logger.debug(str(datetime.datetime.now()))
             if log_message:
                 self.sys_conf.logger.debug(log_message)
 
@@ -95,21 +96,23 @@ class BaseMoError(Exception):
 
         try:
             if mod1 or mod4 or mod5:
+                body = str(request.data, 'utf-8')
+                if body == '' and request.method == 'POST':
+                    body = str(request.form)
                 self.sys_conf.logger.debug(
                     'request_id: {request_id} \n HTTP/1.1 {method} {url}\n{headers}\n\nbody: {body}'.format(
                         request_id=get_request_id(),
                         method=request.method,
                         url=request.url,
                         headers='\n'.join('{}: {}'.format(k, v) for k, v in request.headers.items()),
-                        body=str(request.data, 'utf-8')
+                        body=body
                     ))
         except Exception as ex:
             print("my_except/BaseMoError._get_message", ex)
             pass
 
         if mod2 or mod3:
-            self.sys_conf.logger.exception('%s :: %s exception occurred' %
-                                           (str(datetime.datetime.now()), self.get_class_name()))
+            self.sys_conf.logger.exception('%s exception occurred' % self.get_class_name())
 
         if message and str(message).find('%s') >= 0:
             params = list(self.params[1:])
