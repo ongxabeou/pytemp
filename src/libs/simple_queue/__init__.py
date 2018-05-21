@@ -78,13 +78,17 @@ class SimpleQueue:
         print(" [x] Sent %r" % message)
         try_push = 3
         while not success and try_push > 0:
-            success = self._owner_push(message)
-            if not success:
-                time.sleep(0.1)
-                self.connection.close()
-                self._create_connection()
+            try:
+                success = self._owner_push(message)
+                if not success:
+                    time.sleep(0.1)
+                    self.connection.close()
+                    self._create_connection()
+                    try_push -= 1
+            except Exception as e:
+                print(e)
+                success = False
                 try_push -= 1
-
         if not success:
             raise KeyError('can not push message to queue [%s]', self.queue_name)
 
