@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "microdream-1196",
+  "private_key_id": "b7253957aa69f5205ffa0220e1f757430f453784",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCsSwqBwcylNyBa\ncpLLYd8F6cZzYJfGhpB2aRa6/aJnxR4QDy18DP0qfCWCwX3zwqkoKAXeIUAwFccf\nRKavm6sdHvXV5Ytl9VLOckudWnhoJNGSwEDSBWiWZO+d6bpt90PHYFQHP5dH9zTi\nkL6VogwAqo9DXj7VQrDoXrfSG2aWRx9Fn6yFY2XZdo8M78OKimMPf9aSrHV0Pq+x\nCzk3Y4lxu1SYkQfYOzFkCgPDCvS3P29upbEv8YywlBj4JraMaodqP9iE/C1805PH\nSxdFfUaD4IbcFakqKkmHr1ayoaLnlrwpyEcbVizBvUaSkrx09tffR05A2/LzTL8Y\nDecSx/hBAgMBAAECggEAGBXkIcrqL+J/9wTzTn6fwzTbaupYQrGHD8vrGI2NHufo\nfE2S3zegS0h6+fImCGXwaHkH26CsV3culJ7FP+Fez2hc7N+frXYucvEkGZrkdYfy\nyuAYxQNqi95lEknyp51xxTUgf2Q9YsXFMohnjDAmG2W8jKoSgJTyeYQxkFayRama\n1rAGO2omCfbKO2zLMAu2mwegivSAgfsCFin5OnYFEAFDK9TqX5e68mG+H7rZD/JD\nnpnHuPG0SNYo9EbNxxuWbCUsM2qV9asL8lCCkyc8wKBcFuC3GX9vSnuXrQ6CDLhA\nOMNIzGyHeh4EpYt49aDCM5k/M6tyQq6Wg7b5Nfj9rQKBgQDdc+7+fnq2dqDcH6Ur\n/L497mjwxpKc3QEh9tSelboOWEuJlaeCTCz/jjfBMrNxjtTXOAorwJpy4oiFMvzu\nWzkW8Hg8kHqY7NLv6ieSO7U8Fwu0IlIYvpU6T9GUrq3pzAE8uQaN7RfnfGN0+BkK\nvqNZ2QXJXgtr3UH5V3FXv+azQwKBgQDHK9YnJ6M52O8VeWKWOfkApL0e+FLKDndP\nFbRorUBRjFPFZG3calz6PF6lz880iu68z/3N/Z70B7TGZiy7qsUltYESl4T6ktMT\nnU4nWzrSZ3j5h/nPfWdqpgARHKOGbEhqVYuS3sskEQKPlmR2YM1Oyqa95BwYcuPV\ncDUSemT0KwKBgEb4X5Bp4lPVgsnozlthfWqFnFYFnXjuDu3el9dW7rCoNVUbg/pr\nBUTFRDMDV6S9/JIYoJHTAOxukwf1BkAxNgOW/0GRn+ighR1kMlhYEEX4sMSC90J8\n2YA9klIPBSdXPNJEDciwQifqokkbNZNO8zTZK1SUch6YYwtQrb9MfdfXAoGBAJUE\nfWQqSfvcDXXZriOMGHucxktHrFm1XRr0uFihV8Ar5/mGXJRPmGU5ie8xfmxnjpwC\nWnkmyyj2IxFWHR4EdSDznjDU4Q/Bjt/cED9uCKKn/GFmlUfjId8veFlVPhwzJDM6\n8gTfYMoJWAsqkNvpLXNIOF1XMJYyT7jADVVX8fSlAoGAPyzhcW8h0u2qV9nRGFV2\nbrKVZhcFmSKcQKg65sjl3DTBBeXEishGSDcBItaT62RiblEmZzOZRugN7ivwUJrx\nXn3xKlXzzLgXs3yQGq6bi1M4IIfv1Mo86oWj0ct/zaNAI3UzGXPNIFUWALzeLOyA\ndfSqttGB4r7VqPO01/2BZLw=\n-----END PRIVATE KEY-----\n",
+  "client_email": "nlp-service@microdream-1196.iam.gserviceaccount.com",
+  "client_id": "107866157919450817993",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://accounts.google.com/o/oauth2/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/nlp-service%40microdream-1196.iam.gserviceaccount.com"
+}
