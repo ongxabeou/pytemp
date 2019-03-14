@@ -10,13 +10,13 @@ WORKING_DIR = str(os.environ['DMAI_HOME'])
 MODE_WRITE = 'w'
 MODE_READ = 'r'
 MODE_RUNTIME = 'test'
-DMAI_CONFIG_FILE_PATH = WORKING_DIR + '/resources/configs/dmai.conf'
-DMAI_LOG_CONFIG_FILE_PATH = WORKING_DIR + '/resources/configs/logging.conf'
-DMAI_LOG_FILE_PATH = WORKING_DIR + '/logs/pytemp.log'
+PYTEMP_CONFIG_FILE_PATH = WORKING_DIR + '/resources/configs/pytemp.conf'
+PYTEMP_LOG_CONFIG_FILE_PATH = WORKING_DIR + '/resources/configs/logging.conf'
+PYTEMP_LOG_FILE_PATH = WORKING_DIR + '/logs/pytemp.log'
 
-DMAI_LANG_VI_FILE_PATH = WORKING_DIR + '/resources/lang/message_vi.json'
-DMAI_LANG_EN_FILE_PATH = WORKING_DIR + '/resources/lang/message_en.json'
-
+PYTEMP_LANG_VI_FILE_PATH = WORKING_DIR + '/resources/lang/message_vi.json'
+PYTEMP_LANG_EN_FILE_PATH = WORKING_DIR + '/resources/lang/message_en.json'
+COLLECTION_PATH = WORKING_DIR + '/resources/scripts/'
 
 class ADMIN:
     SECTION = 'admin'
@@ -26,6 +26,7 @@ class ADMIN:
 class SECTION:
     API_URI = 'api_uri'
     LOGGING_MODE = 'logging_mode'
+    MONGODB_SETTINGS = 'MONGODB_SETTINGS'
 
 
 class LOGGING_MODE:
@@ -36,6 +37,13 @@ class LOGGING_MODE:
     LOG_FOR_GLOBAL_EXCEPTION = 'log_for_global_exception'
     FILE_MAX_BYTES = 'file_max_bytes'
     FILE_BACKUP_COUNT = 'file_backup_count'
+
+
+class MONGO_CONFIG:
+    DB = 'db'
+    HOST = 'host'
+    PORT = 'port'
+    ALIAS = 'alias'
 
 
 def open_file(file_path, mode=MODE_READ):

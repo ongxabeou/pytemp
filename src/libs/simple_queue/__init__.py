@@ -11,12 +11,14 @@
 
 import configparser
 import json
+import queue
 from functools import wraps
 
 import pika
 import time
 
 from src.libs.singleton import Singleton
+from src.libs.thread_pool import ThreadPool
 
 
 class QUEUE_MODE:
@@ -26,29 +28,59 @@ class QUEUE_MODE:
     PASSWORD = 'password'
 
 
+_thread_pool_for_local_queue = ThreadPool(num_workers=8)
+
+
 class SimpleQueue:
-    def __init__(self, config_file_name, queue_name, call_back_function=None):
+    def __init__(self, queue_name, config_file_name=None, config_params=None, call_back_function=None):
         self._sections = {}
-        self.config = configparser.ConfigParser()
-        self.config.read(config_file_name, 'utf-8')
+        self.config_params = {}
+        if call_back_function is None:
+            raise KeyError('you must implement for call_back_function to get data if queue have new item')
+        if config_file_name:
+            self.config = configparser.ConfigParser()
+            self.config.read(config_file_name, 'utf-8')
+            self.config_params[QUEUE_MODE.HOST] = self._get_section_map(QUEUE_MODE.__name__)[QUEUE_MODE.HOST]
+            self.config_params[QUEUE_MODE.PORT] = int(self._get_section_map(QUEUE_MODE.__name__)[QUEUE_MODE.PORT])
+            self.config_params[QUEUE_MODE.USER] = self._get_section_map(QUEUE_MODE.__name__)[QUEUE_MODE.USER]
+            self.config_params[QUEUE_MODE.PASSWORD] = self._get_section_map(QUEUE_MODE.__name__)[QUEUE_MODE.PASSWORD]
+        if config_params:
+            self.config_params[QUEUE_MODE.HOST] = config_params[QUEUE_MODE.HOST]
+            self.config_params[QUEUE_MODE.PORT] = config_params[QUEUE_MODE.PORT]
+            self.config_params[QUEUE_MODE.USER] = config_params[QUEUE_MODE.USER]
+            self.config_params[QUEUE_MODE.PASSWORD] = config_params[QUEUE_MODE.PASSWORD]
+
+        self.local_queue = None
         self.queue_name = queue_name
         self._call_back = call_back_function
-        self._create_connection()
+        # trường hợp dùng local_queue
+        if config_file_name is None and config_params is None:
+            self.local_queue = queue.Queue()
+            self._local_consume()
+        else:
+            self._create_connection()
 
     def _create_connection(self):
-        host = self._get_section_map(QUEUE_MODE.__name__)[QUEUE_MODE.HOST]
-        port = int(self._get_section_map(QUEUE_MODE.__name__)[QUEUE_MODE.PORT])
-        user_name = self._get_section_map(QUEUE_MODE.__name__)[QUEUE_MODE.USER]
-        password = self._get_section_map(QUEUE_MODE.__name__)[QUEUE_MODE.PASSWORD]
-        credentials = pika.PlainCredentials(user_name, password)
-        parameters = pika.ConnectionParameters(host, port, '/', credentials)
-        self.connection = pika.BlockingConnection(parameters)
-        self.channel = self.connection.channel()
-        self.channel.queue_declare(queue=self.queue_name, durable=True)
+        if self.local_queue is None:
+            host = self.config_params[QUEUE_MODE.HOST]
+            port = int(self.config_params[QUEUE_MODE.PORT])
+            user_name = self.config_params[QUEUE_MODE.USER]
+            password = self.config_params[QUEUE_MODE.PASSWORD]
+            credentials = pika.PlainCredentials(user_name, password)
+            parameters = pika.ConnectionParameters(host, port, '/', credentials)
+            self.connection = pika.BlockingConnection(parameters)
+            self.channel = self.connection.channel()
+            self.channel.queue_declare(queue=self.queue_name, durable=True)
 
-        if self._call_back is not None:
-            self.channel.basic_qos(prefetch_count=1)
-            self.channel.basic_consume(self._call_back, queue=self.queue_name)
+            if self._call_back is not None:
+                self.channel.basic_qos(prefetch_count=1)
+                self.channel.basic_consume(self._call_back, queue=self.queue_name)
+
+    @_thread_pool_for_local_queue.thread
+    def _local_consume(self):
+        while True:
+            item = self.local_queue.get()
+            self._call_back(item)
 
     def start(self):
         self.channel.start_consuming()
@@ -74,23 +106,26 @@ class SimpleQueue:
         return local_dic
 
     def push(self, message):
-        success = False
-        print(" [x] Sent %r" % message)
-        try_push = 3
-        while not success and try_push > 0:
-            try:
-                success = self._owner_push(message)
-                if not success:
-                    time.sleep(0.1)
-                    self.connection.close()
-                    self._create_connection()
+        if self.local_queue is None:
+            success = False
+            print(" [x] Sent %r" % message)
+            try_push = 3
+            while not success and try_push > 0:
+                try:
+                    success = self._owner_push(message)
+                    if not success:
+                        time.sleep(0.1)
+                        self.connection.close()
+                        self._create_connection()
+                        try_push -= 1
+                except Exception as e:
+                    print(e)
+                    success = False
                     try_push -= 1
-            except Exception as e:
-                print(e)
-                success = False
-                try_push -= 1
-        if not success:
-            raise KeyError('can not push message to queue [%s]', self.queue_name)
+            if not success:
+                raise KeyError('can not push message to queue [%s]', self.queue_name)
+        else:
+            self.local_queue.put(message)
 
     def _owner_push(self, message):
         return self.channel.basic_publish(exchange='',
@@ -106,7 +141,7 @@ class SimpleQueueFactory:
     def __init__(self):
         self.queues = {}
 
-    def add(self, config_file_name, queue_name, call_back_function=None):
+    def add(self, queue_name, config_file_name=None, config_params=None, call_back_function=None):
         """
         hàm tạo một kết nối đến RabitMQ và đưa vào kho quản lý
         :param config_file_name:
@@ -116,7 +151,7 @@ class SimpleQueueFactory:
         """
         sq = self.queues.get(queue_name, None)
         if sq is None:
-            sq = SimpleQueue(config_file_name, queue_name, call_back_function)
+            sq = SimpleQueue(queue_name, config_file_name, config_params, call_back_function)
             self.queues[queue_name] = sq
         return sq
 
@@ -155,31 +190,38 @@ class SimpleQueueFactory:
 
 # ------------------Test------------------------
 if __name__ == '__main__':
+    def process_message_callback(item):
+        print(item)
+
+
     # hướng dẫn cách dùng Simple Queue
     # tạo đối tượng queue
     sqf = SimpleQueueFactory()
     # 'đường dẫn đến file câu hình của project' và tên queue
-    sqf.add('../../../resources/configs/dmai.conf', 'queue_name')
+    sqf.add(queue_name='foo',
+            call_back_function=process_message_callback)
     # lấy queue để sử dụng
-    t_sq = SimpleQueueFactory().get('queue_name')
+    t_sq = SimpleQueueFactory().get('foo')
     # đẩy một item vào queue
     t_sq.push("message")
 
 
-    @sqf.push_to_queue('queue_name')
+    @sqf.push_to_queue('foo')
     def test_msg():
         return 'test_msg'
 
 
-    print(test_msg())
+    test_msg()
 
 
     class TestClass:
         msq = 'test_msg_class'
 
-        @sqf.push_to_queue_for_class('queue_name')
+        @sqf.push_to_queue_for_class('foo')
         def test_msg(self):
             return self.msq
 
 
-    print(TestClass().test_msg())
+    TestClass().test_msg()
+
+    time.sleep(5)
