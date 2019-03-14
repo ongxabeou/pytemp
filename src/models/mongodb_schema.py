@@ -35,6 +35,10 @@ class BaseDocument(db.Document):
 
 
 class BaseCategory(BaseDocument):
+    @abstractmethod
+    def init_data(self, file_name):
+        pass
+
     _id = db.IntField(required=True, primary_key=True)
     name = db.StringField(required=True)
     description = db.StringField(required=True)

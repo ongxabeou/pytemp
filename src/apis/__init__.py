@@ -9,9 +9,9 @@ from src.common.system_config import SystemConfig
 from src.libs.caching import LruCache, STORE_TYPE
 from src.libs.http_jwt_auth import HttpJwtAuth, TYPICALLY
 from src.libs.subscribe import SubscribeAssigner
-from src.models.bot_config_repository import BotConfigRepository
-from src.models import PERMITTED_STRUCTURE
-from src.common import ADMIN, SECTION, LOGGING_MODE, PYTEMP_CONFIG_FILE_PATH
+# from src.models.bot_config_repository import BotConfigRepository
+# from src.models import PERMITTED_STRUCTURE
+from src.common import ADMIN, SECTION, LOGGING_MODE, PROJECT_CONFIG_FILE_PATH
 from functools import wraps
 
 from src.performers.test_performer import TestPerformer
@@ -39,7 +39,7 @@ class API_URI:
 app = Flask(__name__)
 sys_conf = SystemConfig()
 auth = HttpJwtAuth(PytempAuthorization())
-lru_redis_cache = LruCache(store_type=STORE_TYPE.REDIS, config_file_name=PYTEMP_CONFIG_FILE_PATH)
+lru_redis_cache = LruCache(store_type=STORE_TYPE.REDIS, config_file_name=PROJECT_CONFIG_FILE_PATH)
 
 
 def get_param_exception(errors):

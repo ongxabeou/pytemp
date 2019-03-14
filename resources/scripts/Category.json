@@ -1,0 +1,56 @@
+[
+  {
+    "_id": 1,
+    "name": "Phishing",
+    "description": "liên quan đến tấn công lừa đảo (ví dụ truy cập vào các trang lừa đảo)",
+    "group": "Phishing"
+  },
+  {
+    "_id": 2,
+    "name": "Malware",
+    "description": "Có liên quan đến mã độc, CNC Server, payload exploit,...",
+    "group": "Malware"
+  },
+  {
+    "_id": 3,
+    "name": "Brute-force",
+    "description": "Liên quan đến tấn công brute mật khẩu (ví dụ SSH)",
+    "group": "Brute-force"
+  },
+  {
+    "_id": 4,
+    "name": "Hijack or Man-in-the-middle",
+    "description": "Liên quan đến tấn công MiTM và Hijack",
+    "group": "Hijack or Man-in-the-middle"
+  },
+  {
+    "_id": 5,
+    "name": "Web",
+    "description": "Liên quan đến tấn công Web",
+    "group": "Web"
+  },
+  {
+    "_id": 6,
+    "name": "Unencrypted credentials",
+    "description": "Liên quan đến việc lộ lọt tài khoản, việc gửi thông tin xác thực trong và ngoài mạng không mã hóa.",
+    "group": "Unencrypted credentials"
+  },
+  {
+    "_id": 7,
+    "name": "DoS/DDoS",
+    "description": "Liên quan đến tấn công DoS/DDoS",
+    "group": "DoS/DDoS"
+  },
+  {
+    "_id": 8,
+    "name": "APT",
+    "description": "Liên quan đến payload, CNC của các nhóm APT.",
+    "group": "APT"
+  },
+  {
+    "_id": 9,
+    "name": "Botnet",
+    "description": "",
+    "group": "Botnet"
+  }
+]

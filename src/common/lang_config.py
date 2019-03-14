@@ -5,14 +5,14 @@
 """
 import json
 
-from src.common import PYTEMP_LANG_VI_FILE_PATH, PYTEMP_LANG_EN_FILE_PATH, open_file
+from src.common import PROJECT_LANG_VI_FILE_PATH, PROJECT_LANG_EN_FILE_PATH, open_file
 from src.libs.singleton import Singleton
 
 
 def _lang_json(lang='vi'):
-    path = PYTEMP_LANG_VI_FILE_PATH
+    path = PROJECT_LANG_VI_FILE_PATH
     if lang == 'en':
-        path = PYTEMP_LANG_EN_FILE_PATH
+        path = PROJECT_LANG_EN_FILE_PATH
 
     with open_file(path) as data_file:
         data = json.loads(data_file.read())

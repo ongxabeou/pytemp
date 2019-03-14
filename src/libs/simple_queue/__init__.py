@@ -11,6 +11,7 @@
 
 import configparser
 import json
+import pickle
 import queue
 from functools import wraps
 
@@ -59,6 +60,9 @@ class SimpleQueue:
             self._local_consume()
         else:
             self._create_connection()
+
+    def _isinstance(self):
+        return isinstance(self, SimpleQueue)
 
     def _create_connection(self):
         if self.local_queue is None:
@@ -144,6 +148,7 @@ class SimpleQueueFactory:
     def add(self, queue_name, config_file_name=None, config_params=None, call_back_function=None):
         """
         hàm tạo một kết nối đến RabitMQ và đưa vào kho quản lý
+        :param config_params:
         :param config_file_name:
         :param queue_name:
         :param call_back_function:

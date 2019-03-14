@@ -1,0 +1,380 @@
+[
+  {
+    "_id": 1,
+    "name": "Thành phố Hà Nội",
+    "level": 1,
+    "country_code": "VN"
+  },
+  {
+    "_id": 2,
+    "name": "Tỉnh Hà Giang",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 4,
+    "name": "Tỉnh Cao Bằng",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 6,
+    "name": "Tỉnh Bắc Kạn",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 8,
+    "name": "Tỉnh Tuyên Quang",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 10,
+    "name": "Tỉnh Lào Cai",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 11,
+    "name": "Tỉnh Điện Biên",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 12,
+    "name": "Tỉnh Lai Châu",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 14,
+    "name": "Tỉnh Sơn La",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 15,
+    "name": "Tỉnh Yên Bái",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 17,
+    "name": "Tỉnh Hoà Bình",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 19,
+    "name": "Tỉnh Thái Nguyên",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 20,
+    "name": "Tỉnh Lạng Sơn",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 22,
+    "name": "Tỉnh Quảng Ninh",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 24,
+    "name": "Tỉnh Bắc Giang",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 25,
+    "name": "Tỉnh Phú Thọ",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 26,
+    "name": "Tỉnh Vĩnh Phúc",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 27,
+    "name": "Tỉnh Bắc Ninh",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 30,
+    "name": "Tỉnh Hải Dương",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 31,
+    "name": "Thành phố Hải Phòng",
+    "level": 1,
+    "country_code": "VN"
+  },
+  {
+    "_id": 33,
+    "name": "Tỉnh Hưng Yên",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 34,
+    "name": "Tỉnh Thái Bình",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 35,
+    "name": "Tỉnh Hà Nam",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 36,
+    "name": "Tỉnh Nam Định",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 37,
+    "name": "Tỉnh Ninh Bình",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 38,
+    "name": "Tỉnh Thanh Hóa",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 40,
+    "name": "Tỉnh Nghệ An",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 42,
+    "name": "Tỉnh Hà Tĩnh",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 44,
+    "name": "Tỉnh Quảng Bình",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 45,
+    "name": "Tỉnh Quảng Trị",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 46,
+    "name": "Tỉnh Thừa Thiên Huế",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 48,
+    "name": "Thành phố Đà Nẵng",
+    "level": 1,
+    "country_code": "VN"
+  },
+  {
+    "_id": 49,
+    "name": "Tỉnh Quảng Nam",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 51,
+    "name": "Tỉnh Quảng Ngãi",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 52,
+    "name": "Tỉnh Bình Định",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 54,
+    "name": "Tỉnh Phú Yên",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 56,
+    "name": "Tỉnh Khánh Hòa",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 58,
+    "name": "Tỉnh Ninh Thuận",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 60,
+    "name": "Tỉnh Bình Thuận",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 62,
+    "name": "Tỉnh Kon Tum",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 64,
+    "name": "Tỉnh Gia Lai",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 66,
+    "name": "Tỉnh Đắk Lắk",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 67,
+    "name": "Tỉnh Đắk Nông",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 68,
+    "name": "Tỉnh Lâm Đồng",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 70,
+    "name": "Tỉnh Bình Phước",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 72,
+    "name": "Tỉnh Tây Ninh",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 74,
+    "name": "Tỉnh Bình Dương",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 75,
+    "name": "Tỉnh Đồng Nai",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 77,
+    "name": "Tỉnh Bà Rịa - Vũng Tàu",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 79,
+    "name": "Thành phố Hồ Chí Minh",
+    "level": 1,
+    "country_code": "VN"
+  },
+  {
+    "_id": 80,
+    "name": "Tỉnh Long An",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 82,
+    "name": "Tỉnh Tiền Giang",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 83,
+    "name": "Tỉnh Bến Tre",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 84,
+    "name": "Tỉnh Trà Vinh",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 86,
+    "name": "Tỉnh Vĩnh Long",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 87,
+    "name": "Tỉnh Đồng Tháp",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 89,
+    "name": "Tỉnh An Giang",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 91,
+    "name": "Tỉnh Kiên Giang",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 92,
+    "name": "Thành phố Cần Thơ",
+    "level": 1,
+    "country_code": "VN"
+  },
+  {
+    "_id": 93,
+    "name": "Tỉnh Hậu Giang",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 94,
+    "name": "Tỉnh Sóc Trăng",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 95,
+    "name": "Tỉnh Bạc Liêu",
+    "level": 0,
+    "country_code": "VN"
+  },
+  {
+    "_id": 96,
+    "name": "Tỉnh Cà Mau",
+    "level": 0,
+    "country_code": "VN"
+  }
+]

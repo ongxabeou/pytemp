@@ -9,7 +9,7 @@ import configparser
 import datetime
 import logging.config
 import logging.handlers
-from src.common import PYTEMP_CONFIG_FILE_PATH, PYTEMP_LOG_CONFIG_FILE_PATH, PYTEMP_LOG_FILE_PATH, SECTION, LOGGING_MODE
+from src.common import PROJECT_CONFIG_FILE_PATH, PROJECT_LOG_CONFIG_FILE_PATH, PROJECT_LOG_FILE_PATH, SECTION, LOGGING_MODE
 from src.libs.singleton import Singleton
 
 
@@ -19,12 +19,12 @@ class SystemConfig:
     _sections = {}
 
     def __init__(self):
-        self.config.read(PYTEMP_CONFIG_FILE_PATH, 'utf-8')
-        logging.config.fileConfig(PYTEMP_LOG_CONFIG_FILE_PATH, None, disable_existing_loggers=False)
+        self.config.read(PROJECT_CONFIG_FILE_PATH, 'utf-8')
+        logging.config.fileConfig(PROJECT_LOG_CONFIG_FILE_PATH, None, disable_existing_loggers=False)
         self.logger = logging.getLogger('common.system_config.SystemConfig')
         max_bytes = int(self.get_section_map(SECTION.LOGGING_MODE)[LOGGING_MODE.FILE_MAX_BYTES])
         backup_count = int(self.get_section_map(SECTION.LOGGING_MODE)[LOGGING_MODE.FILE_BACKUP_COUNT])
-        self.logger.addHandler(logging.handlers.RotatingFileHandler(filename=PYTEMP_LOG_FILE_PATH,
+        self.logger.addHandler(logging.handlers.RotatingFileHandler(filename=PROJECT_LOG_FILE_PATH,
                                                                     maxBytes=max_bytes,
                                                                     backupCount=backup_count))
 

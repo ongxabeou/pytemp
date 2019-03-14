@@ -1,7 +1,9 @@
 import os
 from functools import wraps
 
-os.environ['DMAI_HOME'], _ = os.path.split(os.path.abspath(__file__))
+from src import PROJECT_NAME
+
+os.environ[PROJECT_NAME + "_HOME"], _ = os.path.split(os.path.abspath(__file__))
 
 from src.common.my_except import BaseMoError
 from src.common.system_config import SystemConfig

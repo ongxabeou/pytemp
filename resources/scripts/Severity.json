@@ -1,0 +1,27 @@
+[
+  {
+    "_id": 1,
+    "name": "Low",
+    "description": "Các event thông thường, không có dấu hiệu bị attacks"
+  },
+  {
+    "_id": 1,
+    "name": "Low",
+    "description": "Các event có giống dấu hiệu bị attacks, nhưng không rõ ràng"
+  },
+  {
+    "_id": 2,
+    "name": "Medium",
+    "description": "Các event có dấu hiệu tấn công rõ ràng, tuy nhiên chưa thành công, hoặc chỉ ở mức độ bắt đầu/rà quét"
+  },
+  {
+    "_id": 3,
+    "name": "High",
+    "description": "Các event về 1 cuộc tấn công đã thành công bước đầu, hệ thống bị xâm nhập hoặc chiếm quyền một phần, các thành phần quan trọng trong hệ thống là mục tiêu, 1 số thành phần ngừng cung cấp dịch vụ ...."
+  },
+  {
+    "_id": 4,
+    "name": "Critical",
+    "description": "Các event về 1 cuộc tấn công nghiêm trọng, 1 số thành phần quan trọng hoặc toàn hệ thống bị tấn công, xâm nhập; Tài khoản người dùng bị lộ lọt; ngừng cung cấp dịch vụ hoàn toàn, ..."
+  }
+]

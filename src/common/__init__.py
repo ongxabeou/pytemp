@@ -6,17 +6,20 @@ import os
 
 from flask import request
 
-WORKING_DIR = str(os.environ['DMAI_HOME'])
+from src import PROJECT_NAME
+
+WORKING_DIR = str(os.environ['%s_HOME' % PROJECT_NAME])
 MODE_WRITE = 'w'
 MODE_READ = 'r'
 MODE_RUNTIME = 'test'
-PYTEMP_CONFIG_FILE_PATH = WORKING_DIR + '/resources/configs/pytemp.conf'
-PYTEMP_LOG_CONFIG_FILE_PATH = WORKING_DIR + '/resources/configs/logging.conf'
-PYTEMP_LOG_FILE_PATH = WORKING_DIR + '/logs/pytemp.log'
+PROJECT_CONFIG_FILE_PATH = WORKING_DIR + '/resources/configs/%s.conf' % PROJECT_NAME
+PROJECT_LOG_CONFIG_FILE_PATH = WORKING_DIR + '/resources/configs/logging.conf'
+PROJECT_LOG_FILE_PATH = WORKING_DIR + '/logs/%s.log' % PROJECT_NAME
 
-PYTEMP_LANG_VI_FILE_PATH = WORKING_DIR + '/resources/lang/message_vi.json'
-PYTEMP_LANG_EN_FILE_PATH = WORKING_DIR + '/resources/lang/message_en.json'
+PROJECT_LANG_VI_FILE_PATH = WORKING_DIR + '/resources/lang/message_vi.json'
+PROJECT_LANG_EN_FILE_PATH = WORKING_DIR + '/resources/lang/message_en.json'
 COLLECTION_PATH = WORKING_DIR + '/resources/scripts/'
+
 
 class ADMIN:
     SECTION = 'admin'

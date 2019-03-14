@@ -5,10 +5,12 @@
     mail: lytuananh2003@gmail.com
     Date created: 2017/04/28
 """
+from src import PROJECT_QUEUE
 from src.apis import lru_redis_cache
 from src.controllers import CUSTOMER_STRUCTURE, META_CLASS, PREFIX_CACHE_KEY
 from src.controllers.base_controller import BaseController
 from src.libs.http_validator import Required, Length, Unicode, Range, In, InstanceOf, PhoneNumber, Email
+from src.libs.simple_queue import SimpleQueueFactory
 from src.libs.subscribe import subscribe_for_class
 from src.models import BOT_STRUCTURE, CONSUMER
 from src.models.bot_config_repository import BotConfigRepository
@@ -34,7 +36,8 @@ class BotController(BaseController):
         }
 
         self.abort_if_data_invalid(rules, customer)
-
+        cus_queue = SimpleQueueFactory().get(PROJECT_QUEUE.CUSTOMER_QUEUE)
+        cus_queue.push(customer)
         return 'say hello, đây là project mẫu'
 
     @subscribe_for_class(label=SUBSCRIBE_LABEL.DELETE_BOT_CONFIG, entity_id_index=1)
