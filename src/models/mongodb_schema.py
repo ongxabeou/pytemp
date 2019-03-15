@@ -3,7 +3,8 @@ import json
 
 from flask_mongoengine import MongoEngine
 
-from src.common import COLLECTION_PATH
+from src.common import COLLECTION_PATH, SECTION, MONGO_CONFIG
+from src.common.system_config import SystemConfig
 
 db = MongoEngine()
 
@@ -28,7 +29,7 @@ class BaseDocument(db.Document):
         else:
             file_path = "{path}{name}.json".format(path=COLLECTION_PATH, name=self.__class__.__name__)
         with open(file_path, 'r', encoding='UTF-8') as f:
-            print(file_path)
+            SystemConfig().logger.info('init collection from file: %s' % file_path)
             data = json.load(f)
             for obj in data:
                 self.__init__(**obj)  # json as input
@@ -64,6 +65,8 @@ class Category(BaseCategory):
 
 
 def init_all_data():
+    SystemConfig().logger.info(
+        'init database: %s' % SystemConfig().get_section_map(SECTION.MONGODB_SETTINGS)[MONGO_CONFIG.DB])
     collections = [Organization(), Province(), Severity(), Category()]
     for c in collections:
         c.init_data()
