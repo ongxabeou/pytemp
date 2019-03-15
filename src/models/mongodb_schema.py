@@ -1,6 +1,5 @@
 import datetime
 import json
-from abc import abstractmethod
 
 from flask_mongoengine import MongoEngine
 
@@ -23,9 +22,11 @@ class BaseDocument(db.Document):
         self.updated_date = datetime.datetime.now()
         return super(BaseDocument, self).save(*args, **kwargs)
 
-    @abstractmethod
-    def init_data(self, file_name):
-        file_path = COLLECTION_PATH + file_name
+    def init_data(self, file_name=None):
+        if file_name:
+            file_path = "{path}{name}.json".format(path=COLLECTION_PATH, name=file_name)
+        else:
+            file_path = "{path}{name}.json".format(path=COLLECTION_PATH, name=self.__class__.__name__)
         with open(file_path, 'r', encoding='UTF-8') as f:
             print(file_path)
             data = json.load(f)
@@ -35,10 +36,6 @@ class BaseDocument(db.Document):
 
 
 class BaseCategory(BaseDocument):
-    @abstractmethod
-    def init_data(self, file_name):
-        pass
-
     _id = db.IntField(required=True, primary_key=True)
     name = db.StringField(required=True)
     description = db.StringField(required=True)
@@ -50,9 +47,6 @@ class Organization(BaseDocument):
     _id = db.StringField(required=True, primary_key=True)
     name = db.StringField(required=True, unique=True)
 
-    def init_data(self, file_name='Organization.json'):
-        super().init_data(file_name)
-
 
 class Province(BaseDocument):
     _id = db.IntField(required=True, primary_key=True)
@@ -60,21 +54,13 @@ class Province(BaseDocument):
     level = db.IntField(required=True, choices=[0, 1])
     country_code = db.StringField(required=True)
 
-    def init_data(self, file_name='Province.json'):
-        super().init_data(file_name)
-
 
 class Severity(BaseCategory):
-
-    def init_data(self, file_name='Severity.json'):
-        super().init_data(file_name)
+    pass
 
 
 class Category(BaseCategory):
     group = db.StringField()
-
-    def init_data(self, file_name='Category.json'):
-        super().init_data(file_name)
 
 
 def init_all_data():

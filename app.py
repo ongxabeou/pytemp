@@ -25,8 +25,6 @@ from src.models.mongodb_schema import (
 from src.libs.simple_queue import SimpleQueueFactory
 
 
-# from src.apis.bot import bot_mod
-
 def create_app():
     app = Flask(__name__)
 
@@ -57,12 +55,12 @@ cli = FlaskGroup(create_app=create_app)
 @click.option("--teardown")
 def migrate(teardown):
     if teardown:
-        tear_down(SystemConfig().get_section_map(SECTION.MONGODB_SETTINGS)[MONGO_CONFIG.DB])
+        tear_down()
     set_up()
 
 
-def tear_down(chosen_db):
-    db.connection.drop_database(chosen_db)
+def tear_down():
+    db.connection.drop_database(SystemConfig().get_section_map(SECTION.MONGODB_SETTINGS)[MONGO_CONFIG.DB])
 
 
 # supposed to interact with some scripts to generate database
