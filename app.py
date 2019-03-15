@@ -25,6 +25,11 @@ from src.models.mongodb_schema import (
 from src.libs.simple_queue import SimpleQueueFactory
 
 
+def add_api_route(app, api_mod):
+    SystemConfig().logger.info('add api route for %s' % api_mod.name)
+    app.register_blueprint(api_mod)
+
+
 def create_app():
     app = Flask(__name__)
 
@@ -39,7 +44,9 @@ def create_app():
         MONGO_CONFIG.PORT: int(SystemConfig().get_section_map(SECTION.MONGODB_SETTINGS)[MONGO_CONFIG.PORT]),
         MONGO_CONFIG.DB: SystemConfig().get_section_map(SECTION.MONGODB_SETTINGS)[MONGO_CONFIG.DB],
     }
-    app.register_blueprint(bot_mod)
+
+    SystemConfig().logger.info('==================================================================')
+    add_api_route(app, bot_mod)
 
     db.init_app(app)
 

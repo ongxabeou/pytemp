@@ -65,6 +65,7 @@ class Category(BaseCategory):
 
 
 def init_all_data():
+    SystemConfig().logger.info('==================================================================')
     SystemConfig().logger.info(
         'init database: %s' % SystemConfig().get_section_map(SECTION.MONGODB_SETTINGS)[MONGO_CONFIG.DB])
     collections = [Organization(), Province(), Severity(), Category()]
