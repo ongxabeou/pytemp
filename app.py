@@ -26,7 +26,7 @@ from src.libs.simple_queue import SimpleQueueFactory
 
 
 def add_api_route(app, api_mod):
-    SystemConfig().logger.info('add api route for %s' % api_mod.name)
+    SystemConfig().logger.info('register api route for %s' % api_mod.name)
     app.register_blueprint(api_mod)
 
 
