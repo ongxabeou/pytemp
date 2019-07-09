@@ -6,11 +6,13 @@
     Date created: 2017/04/28
 """
 import configparser
-import datetime
 import logging.config
 import logging.handlers
-from src.common import PROJECT_CONFIG_FILE_PATH, PROJECT_LOG_CONFIG_FILE_PATH, PROJECT_LOG_FILE_PATH, SECTION, \
-    LOGGING_MODE
+
+from flask.logging import has_level_handler, default_handler
+
+from src.common import PROJECT_CONFIG_FILE_PATH, ERROR_LOG_FILE_PATH, \
+    PROJECT_LOG_FILE_PATH, PROJECT_LOG_CONFIG_FILE_PATH
 from src.libs.singleton import Singleton
 
 
@@ -21,15 +23,9 @@ class SystemConfig:
 
     def __init__(self):
         self.config.read(PROJECT_CONFIG_FILE_PATH, 'utf-8')
-        logging.config.fileConfig(PROJECT_LOG_CONFIG_FILE_PATH, None, disable_existing_loggers=False)
-        class_full_name = '{module_name}.{class_name}'.format(module_name=self.__class__.__module__,
-                                                              class_name=self.__class__.__name__)
-        self.logger = logging.getLogger(class_full_name)
-        max_bytes = int(self.get_section_map(SECTION.LOGGING_MODE)[LOGGING_MODE.FILE_MAX_BYTES])
-        backup_count = int(self.get_section_map(SECTION.LOGGING_MODE)[LOGGING_MODE.FILE_BACKUP_COUNT])
-        self.logger.addHandler(logging.handlers.RotatingFileHandler(filename=PROJECT_LOG_FILE_PATH,
-                                                                    maxBytes=max_bytes,
-                                                                    backupCount=backup_count))
+        # tất cả cấu hình đều lấy từ file logging.conf
+        logging.config.fileConfig(PROJECT_LOG_CONFIG_FILE_PATH)
+        self.logger = self.get_logger()
 
     def get_section_map(self, section):
         if section in self._sections:
@@ -48,15 +44,54 @@ class SystemConfig:
         self._sections[section] = local_dic
         return local_dic
 
+    def get_logger(self, obj=None):
+        if obj:
+            if isinstance(obj, str):
+                logger = logging.getLogger(obj)
+            else:
+                logger = logging.getLogger(self._fullname(obj))
+        else:
+            logger = logging.getLogger()
+
+        for h in logger.handlers:
+            # logging.handlers.RotatingFileHandler().level
+            try:
+                if h.level == logging.ERROR:
+                    h.baseFilename = ERROR_LOG_FILE_PATH
+                else:
+                    h.baseFilename = PROJECT_LOG_FILE_PATH
+            except Exception as es:
+                print(__name__, es)
+                pass
+
+        # if logger.level == logging.NOTSET:
+        #     logger.setLevel(logging.DEBUG)
+        if not has_level_handler(logger):
+            logger.addHandler(default_handler)
+
+        return logger
+
+    @staticmethod
+    def _fullname(o):
+        # o.__module__ + "." + o.__class__.__qualname__ is an example in
+        # this context of H.L. Mencken's "neat, plausible, and wrong."
+        # Python makes no guarantees as to whether the __module__ special
+        # attribute is defined, so we take a more circumspect approach.
+        # Alas, the module name is explicitly excluded from __qualname__
+        # in Python 3.
+
+        module = o.__class__.__module__
+        if module is None or module == str.__class__.__module__:
+            return o.__class__.__name__  # Avoid reporting __builtin__
+        else:
+            return module + '.' + o.__class__.__name__
+
 
 # --------------------------- TEST ---------------------------
 if __name__ == '__main__':
 
-    __sys_conf = SystemConfig()
-
-
     def ___cu_dump():
-        raise KeyError('Cộng hòa')
+        raise KeyError('test log config:: Behavior was simplified. The logger is always named')
 
 
     def ___man():
@@ -66,4 +101,21 @@ if __name__ == '__main__':
     try:
         ___man()
     except KeyError as e:
-        __sys_conf.logger.exception('%s :: exception occurred' % str(datetime.datetime.now()))
+        SystemConfig().logger.warning(e)
+        SystemConfig().logger.info(e)
+        SystemConfig().logger.debug(e)
+        SystemConfig().logger.error(e)
+        SystemConfig().logger.exception('exception occurred')
+
+
+    class TestLog:
+        def __init__(self):
+            log = SystemConfig().get_logger(self)
+            log.warning('test log')
+            log.info('test log')
+            log.debug('test log')
+            log.error('test log')
+            log.exception('exception occurred')
+
+
+    TestLog()

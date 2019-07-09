@@ -11,15 +11,14 @@
 
 import configparser
 import json
-import pickle
 import queue
+import time
 from functools import wraps
 
 import pika
-import time
 
-from src.libs.singleton import Singleton
-from src.libs.thread_pool import ThreadPool
+from app.libs.singleton import Singleton
+from app.libs.thread_pool import ThreadPool
 
 
 class QUEUE_MODE:
@@ -61,6 +60,13 @@ class SimpleQueue:
         else:
             self._create_connection()
 
+    def size(self):
+        if self.local_queue:
+            return self.local_queue.qsize()
+
+        if self.foreign_queue:
+            return self.foreign_queue.method.message_count
+
     def _isinstance(self):
         return isinstance(self, SimpleQueue)
 
@@ -74,7 +80,7 @@ class SimpleQueue:
             parameters = pika.ConnectionParameters(host, port, '/', credentials)
             self.connection = pika.BlockingConnection(parameters)
             self.channel = self.connection.channel()
-            self.channel.queue_declare(queue=self.queue_name, durable=True)
+            self.foreign_queue = self.channel.queue_declare(queue=self.queue_name, durable=True)
 
             if self._call_back is not None:
                 self.channel.basic_qos(prefetch_count=1)
@@ -160,7 +166,7 @@ class SimpleQueueFactory:
             self.queues[queue_name] = sq
         return sq
 
-    def get(self, queue_name):
+    def get(self, queue_name) -> SimpleQueue:
         try:
             return self.queues[queue_name]
         except KeyError:
@@ -192,6 +198,10 @@ class SimpleQueueFactory:
 
         return wrapper
 
+    def push(self, queue_name, item):
+        sq = self.queues.get(queue_name)
+        sq.push(item)
+
 
 # ------------------Test------------------------
 if __name__ == '__main__':
@@ -208,19 +218,19 @@ if __name__ == '__main__':
     # lấy queue để sử dụng
     t_sq = SimpleQueueFactory().get('foo')
     # đẩy một item vào queue
-    t_sq.push("message")
+    t_sq.push("message 1")
 
 
     @sqf.push_to_queue('foo')
     def test_msg():
-        return 'test_msg'
+        return 'message 2'
 
 
     test_msg()
 
 
     class TestClass:
-        msq = 'test_msg_class'
+        msq = 'message 3'
 
         @sqf.push_to_queue_for_class('foo')
         def test_msg(self):
@@ -229,4 +239,6 @@ if __name__ == '__main__':
 
     TestClass().test_msg()
 
-    time.sleep(5)
+    print('queue size::', sqf.get('foo').size())
+    time.sleep(1)
+    print('queue size::', sqf.get('foo').size())

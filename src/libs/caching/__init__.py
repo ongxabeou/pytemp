@@ -26,7 +26,7 @@ class STORE_TYPE:
 
 
 CACHE_MAX_SIZE_DEFAULT = 1024000
-EXPIRATION_DEFAULT = 15 * 60
+EXPIRATION_DEFAULT = 24 * 3600
 
 
 class LruCache:
@@ -384,6 +384,7 @@ class REDIS_MODE:
     HOST = 'host'
     PORT = 'port'
     EXPIRED_TIME_FOR_KEY = 'expired_time_for_key'
+    PASSWORD = 'password'
 
 
 class RedisCacheDict:
@@ -426,7 +427,8 @@ class RedisCacheDict:
         config.read(config_file_name, 'utf-8')
         self.host = config.get(REDIS_MODE.__name__, REDIS_MODE.HOST)
         self.port = config.get(REDIS_MODE.__name__, REDIS_MODE.PORT)
-        self._redis = redis.Redis(host=self.host, port=self.port, db=0)
+        self.password = config.get(REDIS_MODE.__name__, REDIS_MODE.PASSWORD)
+        self._redis = redis.Redis(host=self.host, port=self.port, db=0, password=self.password)
         self.concurrent = concurrent
         if self.concurrent:
             self._rlock = threading.RLock()
@@ -492,7 +494,12 @@ class RedisCacheDict:
             value = self._redis.get(key)
             if not value:
                 raise KeyError
-            return json.loads(value, encoding="utf-8")
+            try:
+                return json.loads(value, encoding="utf-8")
+            except Exception as e:
+                print(e)
+                print('get key %s ::: %s' % (key, value.decode("utf-8")))
+                return json.loads(value.decode("utf-8"), encoding="utf-8")
         raise KeyError
 
     @_lock_decorator

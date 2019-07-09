@@ -1,7 +1,7 @@
 from abc import abstractmethod
 
-from src.libs.singleton import Singleton
-from src.libs.thread_pool import ThreadPool
+from app.libs.singleton import Singleton
+from app.libs.thread_pool import ThreadPool
 import schedule
 import time
 
