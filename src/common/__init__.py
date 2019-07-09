@@ -24,8 +24,7 @@ MODE_READ = 'r'
 MODE_RUNTIME = 'test'
 PROJECT_CONFIG_FILE_PATH = WORKING_DIR + '/resources/configs/%s.conf' % PROJECT_NAME
 PROJECT_LOG_CONFIG_FILE_PATH = WORKING_DIR + '/resources/configs/logging.conf'
-PROJECT_LOG_FILE_PATH = WORKING_DIR + '/logs/%s.log' % PROJECT_NAME
-ERROR_LOG_FILE_PATH = WORKING_DIR + '/logs/error.log'
+PROJECT_LOG_FOLDER = WORKING_DIR + '/logs'
 
 PROJECT_LANG_VI_FILE_PATH = WORKING_DIR + '/resources/lang/message_vi.json'
 PROJECT_LANG_EN_FILE_PATH = WORKING_DIR + '/resources/lang/message_en.json'

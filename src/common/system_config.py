@@ -8,11 +8,12 @@
 import configparser
 import logging.config
 import logging.handlers
+import os
 
 from flask.logging import has_level_handler, default_handler
 
-from src.common import PROJECT_CONFIG_FILE_PATH, ERROR_LOG_FILE_PATH, \
-    PROJECT_LOG_FILE_PATH, PROJECT_LOG_CONFIG_FILE_PATH
+from src import PROJECT_NAME
+from src.common import PROJECT_CONFIG_FILE_PATH, PROJECT_LOG_CONFIG_FILE_PATH, PROJECT_LOG_FOLDER
 from src.libs.singleton import Singleton
 
 
@@ -56,10 +57,13 @@ class SystemConfig:
         for h in logger.handlers:
             # logging.handlers.RotatingFileHandler().level
             try:
+                if not os.path.isdir(PROJECT_LOG_FOLDER):
+                    os.mkdir(PROJECT_LOG_FOLDER)
+
                 if h.level == logging.ERROR:
-                    h.baseFilename = ERROR_LOG_FILE_PATH
+                    h.baseFilename = PROJECT_LOG_FOLDER + '/error.log'
                 else:
-                    h.baseFilename = PROJECT_LOG_FILE_PATH
+                    h.baseFilename = PROJECT_LOG_FOLDER + ('/%s.log' % PROJECT_NAME)
             except Exception as es:
                 print(__name__, es)
                 pass
