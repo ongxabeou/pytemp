@@ -6,7 +6,7 @@ from click._unicodefun import click
 from flask.cli import FlaskGroup
 
 from src import PROJECT_QUEUE, PROJECT_NAME
-# os.environ[PROJECT_NAME + "_HOME"], _ = os.path.split(os.path.abspath(__file__))
+os.environ[PROJECT_NAME + "_HOME"], _ = os.path.split(os.path.abspath(__file__))
 from src.libs.job import SchedulerFactory
 from src.schedulers.customer_queue_process import customer_process_callback
 from src.common import SECTION, MONGO_CONFIG
