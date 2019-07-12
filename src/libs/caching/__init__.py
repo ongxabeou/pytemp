@@ -428,21 +428,26 @@ class RedisCacheDict:
         self.host = config.get(REDIS_MODE.__name__, REDIS_MODE.HOST)
         self.port = config.get(REDIS_MODE.__name__, REDIS_MODE.PORT)
         self.password = config.get(REDIS_MODE.__name__, REDIS_MODE.PASSWORD)
-        self._redis = redis.Redis(host=self.host, port=self.port, db=0, password=self.password)
         self.concurrent = concurrent
         if self.concurrent:
             self._rlock = threading.RLock()
-
+        self._redis = redis.Redis(host=self.host, port=self.port, db=0)
         self.is_redis_ready = self.check_connection_available()
 
     def check_connection_available(self):
         try:
+
             self._redis.ping()
             return True
         except redis.ConnectionError:
-            print("check_connection_available: redis connection not available: host = %s, port = %s"
-                  % (self.host, self.port))
-            return False
+            try:
+                self._redis = redis.Redis(host=self.host, port=self.port, db=0, password=self.password)
+                self._redis.ping()
+                return True
+            except:
+                print("check_connection_available: redis connection not available: host = %s, port = %s"
+                      % (self.host, self.port))
+                return False
 
     @_lock_decorator
     def size(self):

@@ -17,8 +17,8 @@ from functools import wraps
 
 import pika
 
-from app.libs.singleton import Singleton
-from app.libs.thread_pool import ThreadPool
+from src.libs.singleton import Singleton
+from src.libs.thread_pool import ThreadPool
 
 
 class QUEUE_MODE:

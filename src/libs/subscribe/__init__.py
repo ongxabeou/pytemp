@@ -15,8 +15,8 @@
 from abc import abstractmethod
 from functools import wraps
 
-from app.libs.singleton import Singleton
-from app.libs.thread_pool import ThreadPool
+from src.libs.singleton import Singleton
+from src.libs.thread_pool import ThreadPool
 
 
 def subscribe(label=None, entity_id_index=0):

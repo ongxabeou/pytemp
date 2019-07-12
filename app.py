@@ -5,14 +5,13 @@ import os
 from click._unicodefun import click
 from flask.cli import FlaskGroup
 
-from src import PROJECT_NAME, PROJECT_QUEUE
-
-os.environ[PROJECT_NAME + "_HOME"], _ = os.path.split(os.path.abspath(__file__))
-
+from src import PROJECT_QUEUE, PROJECT_NAME
+# os.environ[PROJECT_NAME + "_HOME"], _ = os.path.split(os.path.abspath(__file__))
+from src.libs.job import SchedulerFactory
 from src.schedulers.customer_queue_process import customer_process_callback
 from src.common import SECTION, MONGO_CONFIG
 from src.common.system_config import SystemConfig
-from src.libs.job import SchedulerFactory
+
 from src.schedulers.test_scheduler import TestScheduler
 
 from flask import Flask
@@ -45,9 +44,9 @@ def create_app():
         MONGO_CONFIG.DB: SystemConfig().get_section_map(SECTION.MONGODB_SETTINGS)[MONGO_CONFIG.DB],
     }
 
-    SystemConfig().logger.info('==================================================================')
+    SystemConfig().logger.info('init route api')
     add_api_route(app, bot_mod)
-
+    SystemConfig().logger.info('init connection database')
     db.init_app(app)
 
     CORS(app)
