@@ -1,6 +1,15 @@
 #!/bin/bash
-# todo: use tmux in here?
-python app.py migrate --teardown 1 && python app.py run -h 0.0.0.0
+## Install
+pip instal -r requirement
 
-# todo: run underground process in here
-python app.py job_process
+## Teardown and migrate database
+
+py run.py teardown
+
+## Run App port 5000
+
+py app.py run &
+
+## Run under background process
+
+py run.py &
