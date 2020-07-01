@@ -1,3 +1,10 @@
+Flask==1.0.2
+Click==7.0
+itsdangerous==1.1.0
+Jinja2==2.10
+MarkupSafe
+Werkzeug==0.14.1
+xmlrunner==1.7.7
 schedule
 cryptography
 pika
@@ -5,13 +12,7 @@ Crypto
 jose
 google==2.0.1
 peewee==2.10.1
-Flask==1.0
-Jinja2==2.10
-MarkupSafe==0.23
-Werkzeug==0.14
-click==6.6
 gunicorn==19.6.0
-itsdangerous==0.24
 python-jose
 unidecode==0.04.21
 flask_cors==3.0.3

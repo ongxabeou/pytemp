@@ -17,7 +17,24 @@ new projects, or ideas from the community.
 ## Install
 
     pip instal -r requirement
-    py app
+    
+
+## Run App
+
+    py app.py run
+    
+## Migrate database
+
+    py run.py migrate
+
+## Teardown and migrate database
+
+    py run.py teardown
+    
+## Run under background process
+
+    py run.py
+
 
 ## Usage
 
