@@ -30,18 +30,6 @@ pipeline {
             }
         }
 
-        stage('install python3.6') {
-            steps {
-                sh """
-                add-apt-repository ppa:deadsnakes/ppa -y
-                apt-get update -y
-                apt install python3.6 -y
-                apt-get install -y python3.6-venv python3.6-dev
-                python3.6 -m venv ~/${APP_NAME}_venv
-                """
-            }
-        }
-
         stage('Code Checkout') {
             steps {
                 checkout([
@@ -55,27 +43,26 @@ pipeline {
         stage('Build ENV') {
 	      steps {
 	        sh """
-	        . ~/${APP_NAME}_venv/bin/activate
-	        pip install -r requirements.txt
+	        pip3 install -r requirements.txt
 	        """
 	      }
 	    }
 
 	    stage('App Build') {
             steps {
-                 sh 'python app.py run &'
+                 sh 'python3 app.py run &'
             }
         }
 
 	    stage('Test') {
 	      steps {
-	        sh 'python test.py'
+	        sh 'python3 test.py'
 	      }
 	    }
 
         stage('Run under background process') {
 	      steps {
-	        sh 'python run.py &'
+	        sh 'python3 run.py &'
 	      }
 	    }
 
