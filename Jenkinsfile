@@ -2,7 +2,7 @@ pipeline {
 
     agent {
         node {
-            label 'slave2'
+            label 'ubuntu_root_slave1'
         }
     }
 
@@ -30,6 +30,18 @@ pipeline {
             }
         }
 
+        stage('install python3.6') {
+            steps {
+                sh """
+                add-apt-repository ppa:deadsnakes/ppa -y
+                apt-get update -y
+                apt install python3.6 -y
+                apt-get install -y python3.6-venv python3.6-dev
+                python3.6 -m venv ~/${APP_NAME}_venv
+                """
+            }
+        }
+
         stage('Code Checkout') {
             steps {
                 checkout([
@@ -42,25 +54,28 @@ pipeline {
 
         stage('Build ENV') {
 	      steps {
-	        sh 'pip3 install -r requirements.txt'
+	        sh """
+	        . ~/${APP_NAME}_venv/bin/activate
+	        pip install -r requirements.txt
+	        """
 	      }
 	    }
 
 	    stage('App Build') {
             steps {
-                 sh 'python3 app.py run &'
+                 sh 'python app.py run &'
             }
         }
 
 	    stage('Test') {
 	      steps {
-	        sh 'python3 test.py'
+	        sh 'python test.py'
 	      }
 	    }
 
         stage('Run under background process') {
 	      steps {
-	        sh 'python3 run.py &'
+	        sh 'python run.py &'
 	      }
 	    }
 
