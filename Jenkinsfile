@@ -40,29 +40,49 @@ pipeline {
             }
         }
 
+        stage('Install Virtualenv') {
+            steps {
+                sh """
+                apt-get update \
+                && apt-get install -y software-properties-common curl \
+                && add-apt-repository ppa:deadsnakes/ppa \
+                && apt-get update \
+                && apt-get install -y python3.6 python3.6-venv
+                python3.6 -m venv ./venv
+                """
+            }
+        }
+
         stage('Build ENV') {
 	      steps {
 	        sh """
-	        pip3 install -r requirements.txt
+	        . ./venv/bin/activate
+	        python -V
+	        pip -V
+	        pip install -r requirements.txt
+	        deactivate
 	        """
 	      }
 	    }
 
-	    stage('App Build') {
+	    stage('Run App and Run under background process') {
             steps {
-                 sh 'python3 app.py run &'
+                 sh """
+                 . ./venv/bin/activate
+                 python app.py run &
+                 python run.py &
+                 deactivate
+                 """
             }
         }
 
-	    stage('Test') {
+	    stage('Test API') {
 	      steps {
-	        sh 'python3 test.py'
-	      }
-	    }
-
-        stage('Run under background process') {
-	      steps {
-	        sh 'python3 run.py &'
+              sh """
+                 . ./venv/bin/activate
+                 python test.py
+                 deactivate
+                 """
 	      }
 	    }
 
