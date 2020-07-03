@@ -53,16 +53,16 @@ pipeline {
             }
         }
 
-        stage('Build ENV') {
-	      steps {
-	        sh """
-	        . ./venv/bin/activate
-	        python -V
-	        pip -V
-	        pip install -r requirements.txt
-	        deactivate
-	        """
-	      }
+        stage('Build App') {
+            steps {
+                sh """
+                . ./venv/bin/activate
+                python -V
+                pip -V
+                pip install -r requirements.txt
+                deactivate
+                """
+            }
 	    }
 
 	    stage('Run App and Run under background process') {
@@ -77,13 +77,52 @@ pipeline {
         }
 
 	    stage('Test API') {
-	      steps {
-              sh """
-                 . ./venv/bin/activate
-                 python test.py
-                 deactivate
-                 """
-	      }
+            steps {
+                sh """
+                . ./venv/bin/activate
+                python test.py
+                deactivate
+                """
+                junit 'test-reports/*.xml'
+            }
+            post {
+                always {
+                    script {
+                        def msg = "hệ thống vừa chạy pipeline ${currentBuild.fullDisplayName} lên server"
+                        echo msg
+                        slackSend channel: env.SLACK_CHANNEL, message: msg
+                    }
+                }
+                success {
+                    script {
+                        def msg = "đã thành công(success)."
+                        echo msg
+                        slackSend channel: env.SLACK_CHANNEL, message: msg
+                    }
+                }
+                unstable {
+                    script {
+                        def msg = "nhưng không ổn đinh(unstable)."
+                        echo msg
+                        slackSend channel: env.SLACK_CHANNEL, message: msg
+                    }
+
+                }
+                failure {
+                    script {
+                        def msg = 'đã thất bại(failed).'
+                        echo msg
+                        slackSend channel: env.SLACK_CHANNEL, message: msg
+                    }
+                }
+                changed {
+                    script {
+                        def msg = 'đã cập hệ thống(changed)'
+                        echo msg
+                        slackSend channel: env.SLACK_CHANNEL, message: msg
+                    }
+                }
+            }
 	    }
 
         stage('Priting All Global Variables') {
